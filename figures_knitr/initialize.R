@@ -11,7 +11,7 @@ library(scales)
 
 # This must be run from within the git repo, obviously.
 git_repo_loc <- system("git rev-parse --show-toplevel", intern=TRUE)
-paper_directory <- file.path(git_repo_loc, "jmlr")
+paper_directory <- file.path(git_repo_loc)
 data_path <- file.path(paper_directory, "experiments_data")
 
 # Plotting and processing functions common to multiple figures
