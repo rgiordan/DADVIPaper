@@ -1,0 +1,241 @@
+\documentclass[twoside,11pt]{article}
+
+% You need {ntheorem before jmlr2e for cref to work with remarks
+% https://stackoverflow.com/questions/6499504/cleveref-fails-for-theorem-environments-sharing-the-same-counter
+\usepackage{ntheorem} 
+
+\usepackage{jmlr2e}
+
+% Toggle JMLR formatting on and off
+\usepackage{etoolbox}
+\newbool{arxiv}
+
+\boolfalse{arxiv}
+%\booltrue{arxiv} % uncomment for arxiv
+
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+
+% Remove the period after footnote labels
+\usepackage[hang]{footmisc}
+
+\usepackage[capitalise,noabbrev]{cleveref}
+
+% Algorithm notation
+% algorithmicx package
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% For custom oversets
+\usepackage{accents}
+
+%\usepackage[inline]{showlabels}
+
+% Way easier to find TODOs with \todo{} than colored text
+% \setlength fixes todonotes; see section 1.6.5 of todonotes manual
+% http://tug.ctan.org/macros/latex/contrib/todonotes/todonotes.pdf
+% \setlength{\marginparwidth}{2cm}
+% \usepackage[textsize=tiny]{todonotes}
+% \usepackage[disable]{todonotes}
+% \doublespacing
+
+
+\notbool{arxiv}{
+    % JMLR style stuff
+    % https://www.jmlr.org/author-info.html
+    % https://github.com/JmlrOrg/jmlr-style-file
+    % https://www.jmlr.org/format/format.html
+    % https://www.jmlr.org/format/authors-guide.html
+    \hypersetup{hidelinks}
+    \usepackage{lastpage}
+    \jmlrheading{25}{2024}{1-\pageref{LastPage}}{7/23}{1/24}{23-1015}{Giordano and Ingram and Broderick}
+
+    \firstpageno{1}
+
+    \editor{Matthew Hoffman}
+} {
+    \editor{}
+}
+
+
+\input{_math_macros}    % Definitions of commonly used math symbols
+\input{_knitr_header}   % A header so we can do standalone knitr files
+\input{figures_knitr}   % Defines macros to place knitr-generated content
+
+
+% Running title must be < 50 characters
+% https://www.jmlr.org/author-info.html#Submission
+\ShortHeadings{BBVI with a Deterministic Objective}{Giordano, Ingram and Broderick}
+\firstpageno{1}
+
+\begin{document}
+
+
+
+
+
+% \pagestyle{fancy}
+
+% \fancyfoot{} % clear all footer fields
+% \fancyfoot[CE,CO]{\thepage}
+% \fancyfoot[LO,LE]{WORK IN PROGRESS}
+% \fancyfoot[RO,RE]{PLEASE DO NOT DISTRIBUTE}
+
+
+% Make a footnote with a custom marker that is not referenced in the text.
+\newcommand{\unnumberedfootnote}[2]{%
+  \begingroup
+  \renewcommand{\thefootnote}{}%
+  \def\thefootnote{#1}\footnotetext{#2}\def\thefootnote{\arabic{footnote}}
+  \endgroup
+}
+
+
+
+
+\title{Black Box Variational Inference with a Deterministic Objective: Faster, More Accurate, and Even More Black Box}
+
+\author{\name Ryan Giordano$^*$ \email rgiordano@berkeley.edu \\
+       \addr Department of Statistics \\ 
+       University of California \\
+       Berkeley, CA, USA
+       \AND
+       \name Martin Ingram$^*$ \email martin.ingram@gmail.com  \\
+       \addr Department of Biosciences\\
+       University of Melbourne\\
+       Parkville, VIC 3010, Australia
+       \AND
+       \name Tamara Broderick \email tbroderick@mit.edu \\
+       \addr Department of Electrical Engineering and Computer
+       Science \\ Massachusetts Institute of Technology \\
+       Cambridge, MA, USA\\
+     }
+
+\maketitle
+
+\unnumberedfootnote{*}{These authors contributed equally.}
+\unnumberedfootnote{-}{The code to reproduce this paper can be found at 
+\url{https://github.com/rgiordan/DADVIPaper}.}
+\unnumberedfootnote{-}{Our Python implementation of DADVI can be found at \url{https://github.com/martiningram/dadvi}.}
+%\def\thefootnote{*}\footnotetext{These authors contributed equally to this work}\def\thefootnote{\arabic{footnote}}
+
+\begin{abstract}%   <- trailing '%' for backward compatibility of .sty file
+    \input{abstract}
+\end{abstract}
+
+\begin{keywords}
+    Black box variational inference,
+    Mean field approximation,
+    Automatic differentiation variational inference,
+    Linear response covariances,
+    Sample average approximation,
+    Stochastic gradient
+\end{keywords}
+
+\section{Introduction}\label{sec:intro}
+\input{introduction}
+
+% \section{Related work}\label{sec:related_work}
+% \input{related_work}
+
+%\section{Methods}\label{sec:methods_intro}
+%\input{methods_intro} %dadvi_description_v2}
+
+\section{Setup} \label{sec:setup}
+\input{setup}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Our Method}\label{sec:dadvi}%\label{sec:vi_approximation}
+\input{dadvi_details}
+
+\subsection{Linear response covariances}\label{sec:linear_response}
+\input{linear_response}
+
+\subsection{Monte Carlo error
+estimation}\label{sec:mc_error_estimation}
+\input{mc_error_estimation}
+
+\subsection{Computational considerations}
+\label{sec:lr_mc_computation} 
+\input{lr_mc_computation}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Considerations in high dimensions}\label{sec:high_dim}
+\input{high_dim_intro}
+
+\subsection{High dimensional normals}\label{sec:high_dim_normal}
+\input{high_dim_normal}
+
+\subsection{High dimensional local variables}\label{sec:high_dim_global_local}
+\input{high_dim_global_local}
+
+\subsection{DADVI fails for full-rank ADVI}
+\label{sec:dadvi_full_rank}
+\input{full_rank}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Related work}\label{sec:related_work}
+\input{related_work}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\section{Experiments}\label{sec:experiments}
+\input{experiments_intro}
+
+\subsection{Models and data} \label{sec:models_data}
+\input{experiments_overview}
+
+\subsection{Computational cost}\label{sec:experiments_runtime}
+\input{experiments_runtime}
+
+\subsection{Posterior Accuracy}\label{sec:experiments_posterior_accuracy}
+\input{experiments_posterior_accuracy}
+
+\subsection{Assessing convergence}\label{sec:experiments_convergence}
+\input{experiments_convergence}
+
+\subsection{Sampling variability} \label{sec:experiments_sampling_variability}
+\input{experiments_sampling_variability}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Conclusion}
+\input{conclusion}
+
+\section{Acknowledgements}
+\input{acks}
+
+
+\newpage
+\bibliography{references.bib}
+
+\newpage
+\appendix
+
+\section{Elaboration on the mean-field assumption}\label{app:mean-field}
+\input{appendix_mean_field}
+
+\section{Behavior of high-dimensional normals}\label{app:high_dim_normal}
+\input{appendix_mvn}
+
+\section{High-dimensional global--local problems}\label{app:high_dim_global_local}
+\input{appendix_theory}
+
+\section{Model details}\label{app:model-details}
+\input{appendix_model_details}
+
+\section{Preconditioning DADVI}\label{app:preconditioning}
+\input{appendix_method_details}
+
+\end{document}

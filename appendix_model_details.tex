@@ -1,0 +1,90 @@
+\subsection{ARM models}
+
+We selected $\ARMNumModels$ from the \texttt{Stan} example models
+repository\footnote{\url{https://github.com/stan-dev/example-models/tree/master/ARM}}.
+The models we used are as follows, with their parameter dimension in parentheses:
+%
+% https://tex.stackexchange.com/questions/422197/latex-environment-to-write-in-plain-text-mode
+\newenvironment{simplechar}{%
+   \catcode`\_=12
+}{}
+
+% \begin{verbatim}
+%     radon_chr
+% \end{verbatim}
+
+\texttt{\ArmModels{}}.
+
+Some models were eliminated from consideration for being duplicates of other
+models, and a small number were eliminated for poor NUTS performance (low
+effective sample size or poor R hat).
+
+\subsection{Tennis}
+
+In the tennis model, each player, $i=1,...,M$ has a rating $\theta_i$. These
+ratings are drawn from a prior distribution with a shared variance:
+
+\begin{align}
+    \theta_i \stackrel{iid}{\sim} \mathcal{N}(0, \sigma^2),
+\end{align}
+
+The standard deviation $\sigma$ is given a half-Normal prior with a scale
+parameter of 1. The likelihood for a match $n=1,...,N$ between player $i$ and
+$j$ is given by:
+
+\begin{align}
+    y_n  \sim \text{Bernoulli}(\text{logit}^{-1}(\theta_i - \theta_j))
+\end{align}
+
+where $y_n = 1$ if player $i$ won, and $y_n = 0$ if not.
+
+
+
+
+\subsection{Occupancy model}
+
+In occupancy models, we are interested in whether site $i$ is occupied by
+species $j$. We model occupation as a binary latent variable
+$y_{ij}$, with probability $\Psi_{ij}$ being the probability that the species is
+occupying the site. The logit of this probability is modeled as a linear
+function of environmental covariates, such as rainfall and temperature:
+
+\begin{align}
+y_{ij} \sim \textrm{Bern}(\Psi_{ij}), \\
+  \textrm{logit}(\Psi_{ij}) = \bm{x}^{\text{(env)}\intercal}_i \bm{\beta}^{\text{(env)}}_j + \gamma_j, \\
+  \bm{\beta}^{\text{(env)}}_j \stackrel{iid}{\sim} \mathcal{N}(0, I), \\
+  \gamma_j \stackrel{iid}{\sim} \mathcal{N}(0, 10^2).
+\end{align}
+
+However, $y_{ij}$ is assumed not to be observed directly. Instead, we observe
+the binary outcome $s_{ijk}$, which equals one if species $j$ was observed at
+site $i$ on the $k$-th visit. If the species was observed, we know that it is
+present ($y_{ij} = 1$), assuming there are no false positives. If it was not, it
+may have been missed, and we model the probability that it would have been
+observed if it had been present, $p_{ijk}$. Mathematically speaking, these
+assumptions result in the following model:
+
+\begin{align}
+  & p(s_{ijk} = 1 \mid y_{ij} = 1) = p_{ijk}, \label{eq:det-prob} \\
+  & p(s_{ijk} = 1 \mid y_{ij} = 0) = 0, \label{eq:false-pos} \\
+  & \textrm{logit}(p_{ijk}) = \bm{x}_{ik}^{\text{(obs)}\intercal} \bm{\beta}^{\text{(obs)}}_j \label{eq:det-prob-model},
+\end{align}
+
+where $\bm{x}_{ik}^{\text{(obs)}\intercal}$ are a set of covariates assumed to
+be related to the probability of observing the species, and
+$\bm{\beta}^{\text{(obs)}}_j$ are coefficients of a linear model relating these
+to the logit of the probability $p_{ijk}$.
+
+As $y_{ij}$ is not observed, it has to be marginalized out for ADVI models to be
+applicable. The resulting likelihood is given by:
+%
+\begin{align}
+  p(s \mid \theta) = \prod_{i=1}^{N} \prod_{j=1}^{J} \left[(1 - \Psi_{ij}) \prod_{k=1}^{K_i} (1 - s_{ijk}) +
+  \Psi_{ij} \prod_{k=1}^{K_i} (p_{ijk})^{s_{ijk}} (1 - p_{ijk})^{1 - s_{ijk}} \right].
+  \label{eq:observed-data-likelihood}
+\end{align}
+%
+Its derivation can be found in the appendix of \cite{ingram:2022:occupancy}.
+Here, $K_i$ are the number of visits to site $i$, $N$ is the total number of
+sites, $J$ is the total number of species, and the rest of the variables are as
+defined previously.

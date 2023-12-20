@@ -1,0 +1,51 @@
+
+\CoverageHistogram{}
+
+We next show that frequentist standard error estimates from DADVI
+provided good estimates of the sampling variability of the DADVI mean estimates, particularly
+for $\znum \ge 32$.
+
+As discussed in \cref{sec:mc_error_estimation}, the sampling variability of
+DADVI estimates are straightforward to compute using standard formulas for the
+sampling variability of M-estimators. For the DADVI mean estimates, we computed
+the sampling standard deviation as described in
+\cref{sec:mc_error_estimation,sec:lr_mc_computation}.\footnote{For the large
+POTUS, Occupancy, and Tennis models, we used CG to compute frequentist coverage
+for the same select quantities of interest for which we computed LR
+covariances.} We denote by $\freqsd$ our estimate of
+$\sqrt{\var{\normz}{\mu_\dadvi}}$ as computed using \cref{eq:mc_variance}, that
+is, of the sampling standard deviation of the DADVI mean estimate under sampling
+of $\Z$.  We can evaluate the accuracy of $\freqsd$ by computing $\mu_\dadvi$
+with a large number of draws, which we denote as $\mu_\infty$, and checking
+whether
+%
+\begin{align*}
+%
+\freqerr := \frac{\mu_\dadvi - \mu_\infty}{\freqsd}
+%
+\end{align*}
+%
+has an approximately standard normal distribution under many draws of
+$\mu_\dadvi$.  We evaluated $\mu_\infty$ by taking the average of 100 runs with
+$\znum = 64$ each.\footnote{The values shown in the $\znum = 64$ panel of
+\cref{fig:coverage} are the same as those whose average was taken to estimate
+$\mu_\infty$.  In theory, this induces some correlation between the $\freqerr$
+values for $\znum = 64$.  However, the sampling variability of $\mu_\infty$ was
+so small that the induced correlation is practically negligible.}
+
+To evaluate whether $\freqerr$ has a normal distribution, we can take  $\Phi$ to
+be the cumulative distribution function of the standard normal distribution, and
+check whether $\Phi(\freqerr)$ has a uniform distribution.  Since the parameters
+returned from a particular model are not independent under sampling from $\Z$,
+the $\Phi(\freqerr)$ are not independent, and standard tests of uniformity like
+the Kolmogorov-Smirnov test are not valid.
+%
+However, we can visually inspect the quality of the standard errors by checking
+whether $\Phi(\freqerr)$ has an approximately uniform distribution, without
+attempting to quantify how close it should be to uniform by chance alone. As can
+be seen in \cref{fig:coverage}, for $\znum = 8$ and $\znum = 16$ the
+$\Phi(\freqerr)$ values are over-dispersed to varying degrees for different
+models; this behavior indicates that the sampling variance $\xi$ is under-estimated. In
+contrast, the intervals provide good marginal coverage when $\znum \ge 32$,
+though some over-dispersion remains in the Occupancy model.
+%

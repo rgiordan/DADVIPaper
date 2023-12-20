@@ -1,0 +1,201 @@
+
+%
+\def\zbar{\bar{z}}
+\def\zzbar{\overline{zz^\trans}}
+\def\sigmat{S}
+\def\zcov{\hat{\Sigma}_{z}}
+
+\subsection{Proof of \cref{prop:normal_accurate}}\label{app:normal_accurate_proof}
+%
+We begin by deriving the DADVI optimal estimates.  Let $\zbar :=
+\meann \z_n$ and $\zzbar := \meann \z_n \z_n^\trans$.  Also, let $\sigmat :=
+\diag{\etasigma}$, noting that $\sigmat v = \etasigma \odot v$ for any vector
+$v$.
+%$\zcov := \meann (\z_n - \zbar) (\z_n - \zbar)^\trans$.
+We can
+write $\theta_n = \etamu + \sigmat \z_n$, so
+%
+\begin{align*}
+%
+\expecthat{\Z}{\theta(\z, \eta)} = \etamu + \sigmat \zbar
+\quad\textrm{and}\quad
+\expecthat{\Z}{\theta(\z, \eta) \theta(\z, \eta)^\trans} =
+    \etamu \etamu^\trans +
+    \etamu  \zbar^\trans \sigmat +
+    \sigmat \zbar \etamu^\trans +
+    \sigmat \zzbar \sigmat,
+%
+\end{align*}
+%
+so
+%
+\begin{align}\label{eq:mvn_dadvi_obj}
+%
+\klobj{\eta} ={}&
+    \frac{1}{2} \etamu^\trans A \left(\etamu + 2 \sigmat \zbar \right) +
+    \frac{1}{2} \trace{A \sigmat \zzbar \sigmat}
+    -B^\trans (\etamu + \sigmat \zbar)
+    -\sumd \log \etasigma[d].
+%
+\end{align}
+%
+For a fixed $\etasigma$ (and so a fixed $\sigmat$), the DADVI optimal
+mean parameter then satisfies
+%
+\begin{align}\label{eq:normal_muhat}
+%
+A \left(\etamuhat + \sigmat \zbar \right) - B = 0
+\quad\Rightarrow\quad
+\etamuhat = A^{-1} B - \sigmat \zbar
+= \etamu^{*} - \sigmat \zbar.
+%
+\end{align}
+%
+Thus, for any particular entry $d$, $\etamuhat[d] - \etamu[d]^{*} =
+O_p(N^{-1/2})$ as long as $\etasigma[d] = O_p(1)$, both as the
+number of samples, $\znum$, goes to infinity.
+
+We can now turn to the behavior of $\etasigmahat$. By plugging $\etamuhat$ as a
+function of $\sigmat$, which is given by \cref{eq:normal_muhat}, into each term
+of \cref{eq:mvn_dadvi_obj} that depends on $\mu$, we get
+%
+\begin{align*}
+%
+\frac{1}{2} \etamuhat^\trans A \left(\etamuhat + 2 \sigmat \zbar \right) ={}&
+\frac{1}{2} (\etamuhat + \sigmat \zbar - \sigmat \zbar)^\trans
+    A \left(\etamuhat + \sigmat \zbar +\sigmat \zbar \right)
+\\={}&
+\frac{1}{2} (A^{-1} B - \sigmat \zbar)^\trans
+    A \left(A^{-1} B +\sigmat \zbar \right)
+\\={}&
+\frac{1}{2} B^\trans A^{-1} B - \frac{1}{2} \zbar^\trans S A S \zbar
+\quad\textrm{and}\\
+%
+B^\trans (\etamuhat + \sigmat \zbar) ={}& B^\trans A^{-1} B.
+\end{align*}
+%
+Plugging the preceding two equations into the corresponding terms of
+\cref{eq:mvn_dadvi_obj} gives, up to a constant $\const$ that does not depend on
+$\etasigma$,
+%
+\begin{align}\label{eq:normal_klhat_sigma_profile}
+%
+\klobj{\etasigma} ={}&
+\frac{1}{2} \trace{A \sigmat \left(\zzbar - \zbar \zbar^\trans\right) \sigmat}
+-\sumd \log \etasigma[d] + \const.
+%
+\end{align}
+%
+Let $R$ denote the symmetric square
+root of the symmetric, positive definite $A$ matrix (so $A = RR$ and $R =
+R^\trans$).  Then we have
+%
+\begin{align*}
+%
+\trace{A S (\zzbar - \zbar \zbar^\trans) S} =
+    \trace{R S
+        \left(\zzbar - \zbar \zbar^\trans \right) (R S)^\trans}.
+%
+\end{align*}
+
+Let $\dequal$ denote equality in distribution, i.e., $X \dequal Y$ means that
+$X$ and $Y$ have the same law.  Then
+%
+\begin{align*}
+%
+R S \z_n \dequal (RSSR)^{1/2} z_n,
+%
+\end{align*}
+%
+since both the left and the right hand sides of the preceding display have a
+$\normal{\cdot}{\zerod[\thetadim], RSSR}$ distribution.  (We have used the fact that
+$S$ and $R$ are both symmetric.)  Thus, for any $\etasigma$,
+%
+\begin{align}\label{eq:klobj_normal_dequal}
+%
+\klobj{\etasigma} \dequal
+\frac{1}{2} \trace{R \sigmat \sigmat R \left(\zzbar - \zbar \zbar^\trans\right)}
+-\frac{1}{2}\sumd \log \etasigma[d]^2 + \const.
+%
+\end{align}
+%
+Though the dependence on $\Z$ of the left and right hand sides of the preceding
+equation is different, for a given $\etasigma$, the two have the same
+distribution, and their optima have the same distribution as well.
+The product $\sigmat \sigmat$ is simply $\diag{\etasigma^2}$, so
+expanding the trace gives
+%
+\begin{align*}
+%
+\trace{R \sigmat \sigmat R \left(\zzbar - \zbar \zbar^\trans\right)}
+={}&
+\sum_{i,j,k=1}^{\thetadim} R_{ij} \etasigma[j]^2 R_{jk}
+ \left(\zzbar - \zbar \zbar^\trans\right)_{ki} \Rightarrow \\
+\frac{\partial}{\partial \etasigma[d]^2}
+    \trace{R \sigmat \sigmat R \left(\zzbar - \zbar \zbar^\trans\right)}
+    ={}&
+\sum_{i,k=1}^{\thetadim} R_{dk}
+     \left(\zzbar - \zbar \zbar^\trans\right)_{ki} R_{id}
+    \\ ={}&
+     (R \left(\zzbar - \zbar \zbar^\trans\right) R^\trans)_{dd}.
+%
+%
+\end{align*}
+%
+So the optimal value of $\etasigma[d]^2$ for the right hand side of
+\cref{eq:klobj_normal_dequal} is
+%
+\begin{align*}
+%
+\etasigmahat[d]^2 =
+\frac{1}{(R \left(\zzbar - \zbar \zbar^\trans\right) R^\trans)_{dd}}.
+%
+\end{align*}
+%
+Note that $R \z_n \sim \normal{\cdot}{\zerod[\thetadim], A}$.  Therefore,
+if $w_n \sim \normal{\cdot}{\zerod[\thetadim], A}$, then
+%
+\begin{align*}
+%
+\etasigmahat[d]^{-2}
+% = \left( R \left(\zzbar - \zbar \zbar^\trans\right) R^\trans\right)_{dd}
+\dequal
+\meann w_{nd}^2 - \left(\meann w_{nd}\right)^2.
+%
+\end{align*}
+%
+So $\expect{\normz}{\etasigmahat[d]^{-2}} = \frac{N - 1}{N} A_{dd} =
+\frac{N - 1}{N} (\etasigma[d]^{*})^{-2}$, and $\etasigmahat[d]^{-2} -
+(\etasigma[d]^{*})^{-2}= O_p(N^{-1/2})$.  From this it follows that
+$\etamuhat[d] - \etamu[d]^* = O_p(N^{-1/2})$ as well.
+
+
+
+\subsection{Proof of \cref{prop:mvn_lr}}\label{app:mvn_lr_proof}
+%
+Recall that the linear response covariance estimate for $\theta$ in this model
+considers the perturbed model
+%
+\begin{align*}
+%
+\log \p(\theta, \y | t) := \log \p(\theta, \y) + t^\trans \theta
+%
+\end{align*}
+%
+and computes
+%
+\begin{align*}
+%
+\lrcov{\q(\theta \vert \etahat)}{\theta} =
+\fracat{d \etamuhat}{d t^\trans}{\etahat} = A^{-1},
+%
+\end{align*}
+%
+where the final equality follows from
+\cref{eq:normal_muhat,eq:normal_klhat_sigma_profile} by identifying $B$ with $B
++ t$ and observing that $\etasigmahat$ does not depend on $t$.  Since $A^{-1}$
+is in fact the true posterior variance, the linear response covariance is exact
+in this case irrespective of how small $\znum$ is, in contrast even to
+$\etasigma^{*}$, which can be a poor estimate of the marginal variances unless
+$A$ is diagonal.
+

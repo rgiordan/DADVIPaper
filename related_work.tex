@@ -1,0 +1,41 @@
+As discussed above in \cref{sec:intro}, the idea of approximating an intractable
+optimization objective $F(\eta) := \expect{\normz}{f(\eta, \z)}$ by
+$\hat{F}(\eta | \Z) := \meann f(\eta, \z_n)$ is well-studied in the optimization
+literature as the ``sample average approximation'' (SAA) \citep[][Chapter
+5]{nemirovski:2009:sgdvsfixed,royset:2013:optimalsaa,
+kim:2015:guidetosaa,shapiro:2021:lectures}. A key theoretical conclusion of the
+optimization literature is that, in general, SAA should perform worse than SG in
+high dimensions in terms of computational cost of providing an accurate optimum.
+Our theoretical results of \cref{sec:high_dim} and experimental results of
+\cref{sec:experiments} suggest that these general-case analyses may be unduly
+pessimistic for many BBVI problems, though we believe more work remains to be
+done establishing guarantees for SAA applied to BBVI in high dimensions.
+
+The present work and the concurrent work by \citet{burroni:2023:saabbvi}
+together form the first systematic studies of the accuracy of SAA for BBVI,
+though the idea of applying SAA to BBVI has occurred several times in the
+literature in the context of other methodological results
+\citep{giordano:2018:covariances,domke:2018:importanceweightingvi,domke:2019:divideandcouplevi,
+broderick:2020:automatic,wycoff:2022:sparsebayesianlasso,giordano:2023:bnp}. The
+methods and experiments of \citet{burroni:2023:saabbvi} provide a complement to
+our present work. \citet{burroni:2023:saabbvi} propose and study a method for
+iteratively increasing the number of draws used for the SAA approximation until
+a desired accuracy is reached (see also \citet{royset:2013:optimalsaa} for a
+similar approach in the optimization literature); in contrast, we keep the
+number of draws fixed in our theoretical analysis and our experiments.
+Additionally, the models considered by \citet{burroni:2023:saabbvi} are
+relatively low-dimensional, which allow the authors to use a very large number
+of draws (up to $\znum = 2^{18}$) without incurring a prohibitive computational
+cost.  In contrast, almost all of our experiments in \cref{sec:experiments} use
+$\znum = \DADVINumDraws$; only in our investigation of Monte Carlo error in
+\cref{sec:experiments_sampling_variability} do we examine changing $\znum$, and
+there we consider only $\znum$ up to 64.  Studying relatively lower-dimensional
+models with a large number of draws allows \citet{burroni:2023:saabbvi} to apply
+SAA with the full-rank approximation (see our discussion of the SAA with the
+full-rank approximation in \cref{sec:dadvi_full_rank}).  In contrast, we
+emphasize the computation of LR covariances with the SAA approximation (as in
+\citet{giordano:2018:covariances}) and on the use of DADVI in higher dimensions
+more generally.  One could imagine combining our approaches: for example, by
+computing the size of the sampling error relative to the LR covariance, and
+increasing the number of draws as necessary as recommended in
+\citet{burroni:2023:saabbvi}, though we leave such a synthesis for future work.

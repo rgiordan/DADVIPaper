@@ -1,0 +1,40 @@
+In this section we show how to estimate the Monte Carlo error of the output of
+DADVI. Since this estimate is based on use of the implicit function theorem, as
+we saw for LR covariances, it is again not as readily available to ADVI.
+
+Let $\fun(\eta)$ denote some quantity of interest, such as a posterior
+expectation of the form $\fun(\eta) = \expect{\q(\theta \vert
+\eta)}{\phi_1(\theta)}$ as in the previous \cref{sec:linear_response}.  We are
+now interested in the sampling variance of $\fun(\etahat) - \fun(\etastar)$ due
+to the Monte Carlo randomness in $\Z$. We can apply standard asymptotic theory
+for the variance of M-estimators to find that this sampling variance is, in the
+notation of \cref{sec:linear_response}, consistently estimated by
+%
+\begin{align}\label{eq:mc_variance}
+%
+\var{\normz}{\fun(\etahat) - \fun(\etastar)}
+\approx{}&
+\frac{1}{\sqrt{N}} \grad{\eta}{\fun(\etaopt)}^\trans
+\h^{-1} \scorecov \h^{-1}
+\grad{\eta}{\fun(\etaopt)},  \\
+\quad\textrm{where}\quad
+\scorecov :={}&
+\meann \grad{\eta}{\klobj{\etahat | \z_n}}
+\grad{\eta}{\klobj{\etahat | \z_n}}^\trans. \nonumber
+%
+\end{align}
+%
+\Cref{eq:mc_variance} is analogous to the ``sandwich covariance'' estimate for
+misspecified maximum likelihood models \citep{stefanski:2002:mestimation}.
+Indeed, the question of how variable the DADVI estimate $\etahat$ is under
+sampling of $\Z$ is exactly the same as asking how variable a misspecified
+maximum likelihood estimator (or any M-estimator) is under sampling of the data,
+and the same conceptual tools can be applied.  To complete the analogy, our
+$\scorecov$ plays the role of the empirical score covariance, and $\h$ plays the
+role of the empirical Fisher information.
+
+Analogously to our discussion of LR covariances in \cref{sec:linear_response},
+we briefly note that the classical derivation of \cref{eq:mc_variance} is based
+on a Taylor series expansion of the first-order condition
+$\grad{\eta}{\klobj{\eta \vert \Z}} = 0$, and so is not applicable to
+estimators like ADVI that do not satisfy any computable first-order conditions.

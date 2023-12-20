@@ -1,0 +1,70 @@
+\PosteriorAccuracyARM{}
+\PosteriorAccuracyNonARM{}
+
+We next see that the quality of posterior mean estimates for DADVI and the ADVI
+methods are comparable. The LRVB posterior standard deviations are much more
+accurate than the ADVI methods, including full-rank ADVI. 
+
+Each method produced a posterior mean estimate for each model parameter,
+$\mu_\method$, and a posterior standard deviation estimate, $\sigma_\method$.
+Above, we used $\mu$ to denote the posterior expectation of the full $\theta$
+vector, but here we are using it more generically to denote a posterior
+expectation of some sub-vector of $\theta$, or even the posterior mean of a
+transformed parameter as estimated using Monte Carlo draws from the variational
+approximation in the unconstrained space. We use the NUTS estimates, $\mu_\nuts$
+and $\sigma_\nuts$, as the ground truth to which we compare the various
+variational methods.  In order to form a common scale for the accuracy of the
+posterior means and variances, we define the relative error in the posterior
+mean and standard deviation as follows:
+%
+\begin{align*}
+%
+\muerr_\method :={} \frac{\mu_\method - \mu_\nuts}{\sigma_\nuts}
+\quad\textrm{and}\quad
+\sderr_\method :={} \frac{\sigma_\method - \sigma_\nuts}{\sigma_\nuts}.
+%
+\end{align*}
+%
+For example, if, on a particular parameter of a particular model, we find that
+$\norm{\muerr_\dadvi} < \norm{\muerr_\sadvi}$, we would say that DADVI has
+provided better mean estimates of that model parameter than mean-field ADVI. For
+posterior covariances we will always report $\sderr_\lrvb$ rather than
+$\sderr_\dadvi$, since we expect $\sigma_\dadvi$ to suffer from the same
+deficiencies as the ADVI methods due to their shared use of the
+mean-field approximation.
+
+As discussed in \cref{sec:setup}, any parameters with restricted ranges will
+typically be transformed before running ADVI. In our plots, then, we include one
+point each for the original and transformed versions, respectively, of each
+distinctly named parameter in the PyMC model. For Occupancy, Tennis, and POTUS,
+we reported posterior mean accuracy measures for all parameters, but posterior
+uncertainty measures only for a small number of quantities of interest. When a
+named parameter is multi-dimensional, we report the norm of the error vector
+over  all dimensions in order to avoid giving too much visual weight to a small
+number of high-dimensional parameters.
+
+The posterior accuracy results for ARM and the larger models are shown
+respectively in \cref{fig:posterior_arm_graph,fig:posterior_nonarm_graph}. Recall that,
+of
+the non-ARM models, only the Microcredit model was small enough for full-rank
+ADVI.
+
+The estimates for the posterior means are comparable across methods, with
+RAABBVI performing the best on average.  However, there are parameters for which
+RAABBVI's mean estimates are off by up to a hundred standard deviations while
+the DADVI estimates are fairly accurate.  In contrast, when the DADVI mean
+estimates are severely incorrect, the RAABBVI ones are also severely incorrect.
+This pattern suggests that severe errors in the DADVI posterior means are
+primarily due to the mean-field approximation, whereas severe errors in ADVI
+methods can additionally occur due to problems in optimization.
+
+The LRVB posterior standard deviation estimates are almost uniformly better than
+the ADVI and RAABBVI estimates based on the mean-field approximation. This
+performance is not surprising since the mean field approximation is known to
+produce poor posterior standard deviation estimates.\footnote{Note that the
+relative standard deviation errors for ADVI tend to cluster around 1 because
+MFVB posterior standard deviations tend to be under-estimated, and so a small
+posterior standard deviation estimate leads to a relative error of one.}
+Interestingly, for the ARM models, even the full-rank ADVI posterior covariance
+estimates are worse than the LRVB covariance estimates, which is probably due to
+the difficulty of optimizing the full-rank ADVI objective.

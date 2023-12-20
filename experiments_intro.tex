@@ -1,0 +1,19 @@
+We consider a range of models and datasets. We find that, despite using
+out-of-the box optimization and convergence criteria, DADVI optimization (using
+the SAA approximation) typically converges much faster than classical
+(stochastic) ADVI. DADVI performs comparably to ADVI in posterior mean
+estimation while allowing much better posterior covariance estimation via linear
+response. Upon examination of optimization trajectories, we find that ADVI tends
+to eventually find better ADVI objective values than DADVI but typically takes
+longer to do so. And we confirm that the sampling variability estimates
+available from DADVI are of high quality, even for just tens of draws.
+
+Below, DADVI exhibits good performance on a number of high-dimensional models.
+These models do not obviously satisfy any of the theoretical conditions for good
+performance of the SAA established above (\cref{sec:high_dim}).  So our
+experimental results point to a gap between theory and experiment that is an
+interesting subject for future work.
+
+In our experiments, as in the rest of the paper, we follow the convention that
+``ADVI'' refers to methods that use stochastic optimization, and ``DADVI''
+refers to our proposal of using SAA with the ADVI objective function.

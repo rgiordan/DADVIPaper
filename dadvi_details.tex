@@ -1,0 +1,55 @@
+Our method, DADVI, will start from the same optimization objective as ADVI, but
+it will use a different approximation to handle the intractable objective. As we
+have seen, in ADVI, each step of the optimization draws a new random variable.
+The key difference in our method, DADVI, is that the random approximation is
+instead made with a single set of draws and then fixed throughout optimization.
+The full DADVI algorithm appears in \cref{alg:dadvi}. In the notation of
+\cref{eq:reparameterization_kl}, for a particular $\Z$, 
+the value $\etahat$ returned by DADVI in \cref{alg:dadvi} is given by
+%
+\begin{align}\label{eq:dadvi_estimate}
+    %
+    \etahat := \argmin_{\eta \in \etadom} \klobj{\eta | \Z}.
+    %
+\end{align}
+%
+The $\etahat$ of \cref{eq:dadvi_estimate} is an estimate of $\etastar$ insofar
+as its objective $\klobj{\eta}$ is a random approximation to the true objective
+$\klfullobj{\eta}$. In general, the idea of DADVI can be applied to either the
+mean-field or full-rank ADVI optimization problem (though see
+\cref{sec:dadvi_full_rank} below for some potential challenges when using DADVI
+with full-rank ADVI).  In what follows, analogously to how we refer to the ADVI
+algorithm, we will assume that we are targeting the mean-field problem with
+DADVI unless explicitly stated that we are instead targeting the full-rank
+problem.
+
+
+For DADVI, the reparameterization of \cref{eq:reparameterization} is essential:
+it allows us to use the same set of draws $\Z$ for any value of $\eta$. With
+$\Z$ fixed, $\klobj{\cdot | \Z}$ in turn remains fixed throughout optimization.
+This consistency would not be possible in general without a reparameterization
+like \cref{eq:reparameterization} to separate the stochasticity from the shape
+of $\q(\theta \vert \eta)$.  %However, not all BBVI methods use a
+%reparameterization like \cref{eq:reparameterization} to approximate the
+%objective function's gradient. For example, the ``score method'' rewrites the
+%objective function gradient by differentiating inside the expectation integral,
+%which is then approximated using draws from $\q(\theta \vert \eta)$ at the
+%current value of $\eta$
+%\citep{paisley:2012:variationalstochasticsearch,ranganath:2014:bbvi,mohamed:2020:mcgradients}.
+%Since the sampling distribution $\q(\theta \vert \eta)$ is different at every
+%step of the optimization, it is not immediately obvious how to construct a
+%single approximate objective function that remains fixed throughout optimization
+%for BBVI approximations that rely on the score method.  We leave the question of
+%how to apply the SAA to such problems for future work.
+
+Note that, for a given $\Z$, all derivatives of $\klobj{\eta | \Z}$ required by
+either DADVI or ADVI can be computed using automatic differentiation and a
+software implementation of $\log \p(\theta, \y)$.  In this sense, both DADVI and
+ADVI are black-box methods. 
+In practice, another key difference between ADVI and DADVI is that ADVI
+typically draws only a single random variable per iteration, whereas DADVI uses
+a larger number of draws; in particular, the default number of draws for DADVI
+in our experiments will be $\znum = \DADVINumDraws$.
+
+We will see in what follows that using DADVI instead of ADVI can reap large
+practical benefits.

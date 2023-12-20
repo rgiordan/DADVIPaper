@@ -1,0 +1,160 @@
+We next review linear response (LR) covariances as an approximation for
+posterior covariances of interest. We then show how DADVI accommodates LR
+covariances in a way that ADVI does not. The key observation is that, since ADVI
+does not actually minimize a tractable objective, sensitivity measures such as
+LR covariances are not available, though they are for DADVI. To the authors'
+knowledge, the availability of such sensitivity measures for SAA but not SG is
+not yet a widely recognized advantage of SAA.
+
+One well-documented failure of mean-field variational Bayes approximations
+(including mean-field ADVI) is the mis-estimation of posterior variance
+\citep{bishop:2006:pattern, turner:2011:two, giordano:2018:covariances,
+margossian:2023:shrinkage}.  Even in cases for which mean-field approximations
+provide good approximations to posterior means (e.g.\ when a Bayesian central
+limit theorem can be approximately applied), the posterior variances are
+typically incorrect. Formally, we often find that, for some quantity of interest
+$\qoi{\theta} \in \mathbb{R}$,
+%
+\begin{align}\label{eq:mfvb_conceit}
+%
+\expect{\q(\theta \vert \etastar)}{\qoi{\theta}} \approx
+\expect{\post}{\qoi{\theta}} \quad\textrm{but}\quad
+\abs{\var{\q(\theta \vert \etastar)}{\qoi{\theta}} - 
+\var{\post}{\qoi{\theta}}} \gg 0.
+\end{align}
+%
+A classical motivating example is the case of multivariate normal
+posteriors, which we review in \cref{sec:high_dim_normal}.
+
+LR covariances comprise a technique for ameliorating the mis-estimation of
+posterior variances without fitting a more expressive approximating class and
+enduring the corresponding increase in computational complexity
+\citep{giordano:2018:covariances}. Since posterior hyperparameter sensitivity
+takes the form of posterior covariances, posterior covariances can be estimated
+using the corresponding sensitivity of the VB approximation. Specifically, for
+some $\phi_2(\theta)$, consider the exponentially tilted posterior, $\p(\theta
+\vert \y, t) \propto \p(\theta \vert \y) \exp(t \phi_2(\theta))$.  When we can
+exchange integration and differentiation, we find that
+%
+\begin{align}\label{eq:deriv_is_cov}
+%
+\p(\theta
+\vert \y, t) \propto \p(\theta \vert \y) \exp(t \phi_2(\theta))
+%
+\quad\Rightarrow\quad
+%
+\fracat{d \expect{\p(\theta \vert \y, t)}{\phi_1(\theta)}}
+       {dt}{t=0} = \cov{\p(\theta \vert \y)}{\phi_1(\theta), \phi_2(\theta)}.
+%
+\end{align}
+%
+A detailed proof of \cref{eq:deriv_is_cov} is given in Theorem 1 of
+\cite{giordano:2018:covariances}; see also the classical score estimator of the
+derivative of an expectation \citep{mohamed:2020:mcgradients}.  Together,
+\cref{eq:mfvb_conceit,eq:deriv_is_cov} motivate the LR approximation
+%
+\begin{align}\label{eq:lr_def}
+%
+\lrcovfull{\q(\theta \vert \etastar)}{\phi_1(\theta), \phi_2(\theta)} :=
+\fracat{d \expect{\q(\theta \vert \etastar(t))}{\phi_1(\theta)}}
+       {dt}{t=0} =
+\fracat{\partial \expect{\q(\theta \vert \eta)}{\phi_1(\theta)}}
+       {\partial \eta^\trans}{\eta=\etastar}
+\fracat{d \etastar(t)}{d t}{t = 0}
+%
+\end{align}
+%
+where $\etastar(t)$ minimizes the KL divergence to the tilted posterior
+$\p(\theta \vert \y, t)$. By applying the implicit function theorem to the
+first-order condition $\grad{\eta}{\klfullobj{\etastar}} = 0$, together with the
+chain rule, \citet{giordano:2018:covariances} show that
+%
+\begin{align}\label{eq:lr_deriv}
+%
+\lrcovfull{\q(\theta \vert \etastar)}{\phi_1(\theta), \phi_2(\theta)}
+=
+\fracat{\partial \expect{\q(\theta \vert \eta)}{\phi_1(\theta)}}
+      {\partial\eta^\trans}{\eta=\etastar}
+\left(\hess{\eta}{\klfullobj{\etastar}} \right)^{-1}
+\fracat{\partial \expect{\q(\theta \vert \eta)}{\phi_2(\theta)}}
+     {\partial\eta}{\eta=\etastar}.
+%
+\end{align}
+
+As discussed in \citet{giordano:2018:covariances} ---
+and demonstrated in our experiments to follow --- it can often be the case that
+%
+$
+\lrcovfull{\q(\theta \vert \etastar)}{\phi_1(\theta), \phi_2(\theta)}
+\approx \cov{\post}{\phi_1(\theta), \phi_2(\theta)}
+$,
+%
+even when $\cov{\q(\theta \vert \etastar)}{\phi_1(\theta), \phi_2(\theta)}$ is
+quite a poor approximation to $\cov{\post}{\phi_1(\theta), \phi_2(\theta)}$. For
+example, in the case of multivariate normal posteriors, the LR covariances are
+exact, as we discuss in \cref{sec:high_dim_normal} below. See
+\citet{giordano:2018:covariances} for more extended discussion of the intuition
+behind \cref{eq:lr_def}.
+
+Unfortunately, the derivative $d\etastar(t) / dt$ required by \cref{eq:lr_def}
+cannot be directly computed for ADVI. %, for two reasons, both related to the fact
+%that the objective function $\klfullobj{\eta}$ is intractable.
+%
+First, observe that the Hessian matrix $\hess{\eta}{\klfullobj{\etastar}}$ in
+\cref{eq:lr_deriv} cannot be computed for ADVI since neither $\etastar$ nor
+$\klfullobj{\cdot}$ is computable.  One might instead approximate
+$\hess{\eta}{\klfullobj{\eta}}$ with $\hess{\eta}{\klobj{\eta \vert \Z}}$ by
+using additional Monte Carlo samples, and then evaluate at the ADVI optimum.
+However, due to noise in the SG algorithm, the ADVI optimum typically does not
+actually minimize $\klfullobj{\eta}$ nor $\klobj{\eta \vert \Z}$, so one is not
+justified in applying the implicit function theorem at the ADVI optimum.
+
+In contrast, DADVI does not suffer from these difficulties because its objective
+function is available, and DADVI typically finds a parameter that minimizes that
+objective to a high degree of numerical accuracy; one can ensure directly that
+$\etahat$ is, to high precision, a local minimum of $\klobj{\eta | \Z}$. 
+%By using $\klobj{\eta \vert \Z}$ and $\etaopt$ in place of their intractable
+%counterparts in \cref{eq:lr_def},
+Therefore, we are justified  in applying the implicit
+function theorem to the first-order condition $\grad{\eta}{\klobj{\eta \vert
+\Z}} = 0$.  If we follow the derivation of \cref{eq:lr_deriv} but
+with $\klobj{\eta \vert \Z}$ in place of $\klfullobj{\eta}$, we find
+the following tractable LR covariance estimate:
+%
+\begin{align}\label{eq:lr_deriv_dadvi}
+%
+\lrcov{\q(\theta \vert \etahat)}{\phi_1(\theta), \phi_2(\theta)}
+={}&
+\fracat{\partial \expect{\q(\theta \vert \eta)}{\phi_1(\theta)}}
+      {\partial\eta^\trans}{\eta=\etahat}
+% \left(\hess{\eta}{\klobj{\etahat \vert \Z}} \right)^{-1}
+\h^{-1}
+\fracat{\partial \expect{\q(\theta \vert \eta)}{\phi_2(\theta)}}
+     {\partial\eta}{\eta=\etahat}  \\
+\quad\textrm{where}\quad
+     \h :={}& \hess{\eta}{\klobj{\eta \vert \Z}}. \nonumber
+    %
+\end{align}
+
+% Finally, then, suppose we are interested in a scalar-valued quantity of interest
+% $\fun(\eta)$ for a smoothly differentiable function $\fun$.  When $\fun(\eta)$
+% takes the form of a posterior expectation, i.e.\ $\fun(\eta)= \expect{\q(\theta
+% \vert \eta)}{\phi(\theta)}$, then the corresponding LR covariance estimate is
+% given by
+% %
+% \begin{align}\label{eq:lr_for_function}
+% %
+% \lrcov{\q(\theta \vert \etahat)}{\phi(\theta)}
+%  = \grad{\eta}{\fun(\etaopt)}^\trans \h^{-1} \grad{\eta}{\fun(\etaopt)}
+%  \quad\textrm{where}\quad
+%  \h := \hess{\eta}{\klobj{\eta \vert \Z}}.
+% %
+% \end{align}
+%
+
+
+We note that the same reasoning that leads to a tractable version of LR
+covariances applies to other sensitivity measures, such as prior sensitivity
+measures \citep{giordano:2023:bnp} or the infinitesimal jackknife
+\citep{giordano:2019:swiss}. Though we do not explore these uses of sensitivity analysis
+in the present work, one expects DADVI but not ADVI to support such analyses.

@@ -1,0 +1,166 @@
+In what follows, we take data $\y$ and a finite-dimensional parameter $\theta
+\in \thetadom$. We consider a user who is able to provide software
+implementations of the log density of the joint distribution $\p(\y, \theta)$
+and is interested in reporting means and variances from an approximation of the
+exact Bayesian posterior $\p(\theta \vert \y)$.
+
+Black-box variational inference (BBVI) refers to a spectrum of approaches for
+approximating this posterior. We focus in the present paper on ADVI, a
+particularly popular instance of BBVI. Variational inference forms an
+approximation $\q(\theta \vert \eta)$, with variational parameters $\eta \in
+\etadom$, to $\p(\theta \vert \y)$. Let $\normal{\cdot}{\mu, \Sigma}$ denote a
+normal distribution with mean $\mu$ and covariance matrix $\Sigma$. The
+full-rank variant of ADVI approximately minimizes the reverse KL divergence
+$\textrm{KL}\left( \q(\cdot \vert \eta) || \p(\cdot \vert \y)\right)$ between
+the exact posterior and an approximating family of multivariate normal
+distributions:
+%
+\begin{align}\label{eq:advi_qdom}
+%
+\qdom ={}& \left\{
+    \q(\theta \vert \eta):
+    \q(\theta \vert \eta) =
+        \normal{\theta}{\mu(\eta), \Sigma(\eta)} \right\},
+%
+\end{align}
+%
+where $\eta \mapsto (\mu(\eta), \Sigma(\eta))$ is a (locally) invertible map
+between the space of variational parameters and the mean and covariance of the
+normal distribution. When we optimize $\eta$ over this family, we will refer to
+the resulting optimization problem as the ``full-rank ADVI optimization
+problem.''
+
+In particular, we will typically focus on the following objective function,
+which is equivalent to the one above:
+%
+\begin{align}\label{eq:kl_objective}
+%
+% \etastar := \argmin_{\eta \in \etadom} \klfullobj{\eta}
+% \quad\textrm{where}\quad
+    % \kl{\q(\theta \vert \eta)}{\p(\theta \vert \y)}
+% = \argmin_{\eta \in \etadom} \left(
+\klfullobj{\eta} :=
+        \expect{\q(\theta \vert \eta)}{\log \q(\theta \vert \eta)}
+        -\expect{\q(\theta \vert \eta)}{\logjoint}.
+        % \right),
+%
+\end{align}
+%
+The objective $\klfullobj{\eta}$ in \cref{eq:kl_objective} is equivalent to the
+KL divergence $\textrm{KL}\left( \q(\cdot \vert \eta) || \p(\cdot \vert
+\y)\right)$ up to $\log \p(\y)$, which does not depend on $\eta$, so that
+minimizing $\klfullobj{\eta}$ also minimizes the KL divergence. The negative of
+the objective, $-\klfullobj{\eta}$, is sometimes called the ``evidence lower
+bound'' (ELBO) \citep{blei:2016:variational}. 
+
+To avoid degeneracy in the objective, typically one transforms any model
+parameters with restricted range before running the optimization --- and
+performs the reverse transformation after. E.g., we might take the logarithm of
+any strictly positive parameters so that their transformed range is the full
+real line; see \citet{kucukelbir:2017:advi} for further details. Therefore, we
+will henceforth assume that $\thetadom = \rdom{\thetadim}$ and $\p(\theta)$ is
+supported on all $\rdom{\thetadim}$. Then in the full-rank case, $\eta$ contains
+both the mean and some unconstrained representation of a $\thetadim$-dimensional
+covariance matrix, so that $\eta \in \rdom{\thetadim + \thetadim (\thetadim + 1)
+/ 2}$.
+
+The mean-field variant of ADVI restricts $\Sigma(\eta)$ to be
+diagonal.\footnote{Technically, in the mean-field variant of ADVI,
+$\Sigma(\eta)$ may sometimes be block diagonal; see \cref{app:mean-field}.
+We elide this special case in what
+follows for ease of exposition. Our experiments are fully diagonal.} That is,
+take the approximating family $\qdom$ to consist of independent normals with
+means $\etamu \in \rdom{\thetadim}$ and log standard deviations $\etaxi \in
+\rdom{\thetadim}$.
+\begin{align}\label{eq:advi_qdom_mf}
+%
+\qdom ={}& \left\{
+    \q(\theta \vert \eta):
+    \q(\theta \vert \eta) =
+        \prod_{d=1}^{\thetadim}
+            \normal{\theta_d}{\etamu[d], \exp(\etaxi[d])^2}
+\right\} \\
+\etamu ={}& (\etamu[1], \ldots, \etamu[\thetadim])^\trans
+\textrm{, }
+\etaxi = (\etaxi[1], \ldots, \etaxi[\thetadim])^\trans
+\textrm{, }
+\eta = (\etamu^\trans, \etaxi^\trans)^\trans
+\textrm{, }
+\etadom = \mathbb{R}^{\etadim}
+\textrm{, and }
+\etadim = 2\thetadim.
+\nonumber
+%
+\end{align}
+%In this case, we can write the vector of variational standard deviation parameters
+%as $\etasigma = \exp(\etaxi)$, where $\exp(\cdot)$ is applied
+%component-wise.
+For mean-field ADVI, the variational parameter $\eta^\trans = (\etamu^\trans,
+\etaxi^\trans) \in \rdom{2\thetadim}$. When the variational family satisfies the
+mean-field assumption, we will refer to the resulting optimization problem as
+the ``mean-field ADVI optimization problem'' and its objective as the
+``mean-field ADVI objective.''
+
+Using the expression for univariate normal entropy and neglecting some
+constants, the mean-field ADVI objective in \cref{eq:kl_objective} becomes
+%
+\begin{align}\label{eq:kl_objective_advi}
+%
+\klfullobj{\eta} :=
+-\sum_{d=1}^{\thetadim} \etaxi[d] -
+\expect{\normal{\theta}{\eta}}{\log \p(\theta, \y)}
+\quad\textrm{and}\quad
+\etastar := \argmin_{\eta \in \etadom} \klfullobj{\eta}.
+%
+\end{align}
+%
+We would ideally like to compute $\etastar$, but we cannot optimize
+$\klfullobj{\eta}$ directly, because the term
+$\expect{\normal{\theta}{\eta}}{\log \p(\theta, \y)}$ is generally intractable.
+ADVI, like most current BBVI methods, employs stochastic gradient optimization
+(SG) to avoid computing $\klfullobj{\eta}$.  Specifically, ADVI uses Monte Carlo
+and the ``reparameterization trick'' \citep{mohamed:2020:mcgradients} as
+follows. Let $\normz$ denote the $\thetadim$-dimensional standard normal
+distribution. If $\z \sim \normz$, then
+%if we take $\theta(\z, \eta) := \etamu + \z \odot \exp(\etaxi)$, where
+%$\odot$ is the component-wise (Hadamard) product, then
+%
+\begin{align}\label{eq:reparameterization}
+%
+\expect{\normal{\theta}{\eta}}{\log \p(\theta, \y)} ={}&
+    \expect{\normz}{\log \p(\etamu + \z \odot \exp(\etaxi), \y)}.
+%
+\end{align}
+%
+For compactness, we write 
+%
+\begin{align}\label{eq:reparameterization_theta}
+    \theta(\eta, \z) := \etamu + \z \odot \exp(\etaxi),
+\end{align}
+%
+where $\odot$ is the component-wise (Hadamard) product. 
+For $\znum$ independent
+draws\footnote{A subscript $\z_n$ will denote a particular member of the set
+$\Z$, though for the rest of the paper, subscripts will usually denote an entry
+of a vector.} $\Z := \{ \z_1, \ldots, \z_\znum \}$ from $\normz$, we can use
+\cref{eq:reparameterization} to define an unbiased estimate for the mean-field
+$\klfullobj{\eta}$:
+%
+\begin{align}\label{eq:reparameterization_kl}
+%
+\klobj{\eta | \Z} := 
+-\sum_{d=1}^{\thetadim} \etaxi[d] -
+\meann \log \p(\theta(\eta, \z_n), \y).
+% \quad\textrm{and}\quad
+% \etahat := \argmax_{\eta \in \etadom} \klobj{\eta | \Z}.
+%
+\end{align}
+%
+ADVI uses derivatives of $\klobj{\eta | \Z}$, with a new draw of $\Z$ at each
+iteration, to estimate $\etastar$. The ADVI algorithm, which we will sometimes
+refer to as ``ADVI'' in shorthand, can be found in \cref{alg:sadvi}. When we use
+the ADVI algorithm for the full-rank optimization problem, we will write
+``full-rank ADVI.''
+
+\input{dadvi_algorithm}
+\vspace{1em}

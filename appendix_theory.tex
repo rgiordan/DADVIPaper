@@ -1,0 +1,213 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{proof} of \cref{thm:global_local}.
+
+We can write
+%
+\begin{align}
+%
+\MoveEqLeft
+\klfullobj{\etahat} - \klfullobj{\etastar}  ={}
+\nonumber\\&
+\klfullobj{\etahat} - \klfullobj{\etastar}   % xx
++ \klobj{\etastar | \Z} - \klobj{\etastar | \Z} + % xx
+\klobj{\etahat | \Z} - \klobj{\etahat | \Z} = % xx
+\nonumber\\&
+\left(\klfullobj{\etahat} - \klobj{\etahat | \Z} \right) +
+\left(\klobj{\etastar | \Z}  - \klfullobj{\etastar} \right) +
+\left(\klobj{\etahat | \Z} - \klobj{\etastar | \Z}\right) \le
+\nonumber\\&
+\left(\klfullobj{\etahat} - \klobj{\etahat | \Z} \right) +
+\left(\klobj{\etastar | \Z}  - \klfullobj{\etastar} \right) \le
+\nonumber\\&
+\abs{\klfullobj{\etahat} - \klobj{\etahat | \Z}} +
+\abs{\klobj{\etastar | \Z}  - \klfullobj{\etastar}} \le
+\nonumber\\&
+2 \sup_{\eta \in \etadom} \abs{\klfullobj{\eta} - \klobj{\eta | \Z}}
+\label{eq:kl_difference_decomposition}
+%
+\end{align}
+%
+where the penultimate inequality uses the fact that $\klobj{\etahat | \Z} -
+\klobj{\etastar | \Z} \le 0$.
+%
+By \cref{assu:local_minimum}, we then have
+%
+\begin{align}
+%
+\norm{\etahat^\gamma - \etastar^\gamma}_2^2 \le
+\frac{2}{P C_3} \sup_{\eta \in \etadom}
+    \abs{ \klfullobj{\eta} - \klobj{\eta | \Z}}.
+    \label{eq:etagamma_strict_min}
+%
+\end{align}
+
+Similarly, for any given $p$, apply \cref{assu:local_minimum} with the
+components of $\eta$ matching $\etahat^p$ in the components corresponding
+to the variational distribution for $\lambda^p$, and matching $\etastar$
+otherwise, giving
+%
+\begin{align}\label{eq:etap_strict_min}
+%
+\fbar^p(\etastar^\gamma, \etahat^p) -
+    \fbar^p(\etastar^\gamma, \etastar^p)
+    \ge C_3 \norm{\etahat^p - \etastar^p}_2^2.
+%
+\end{align}
+%
+Since $\etahat^p$ minimizes $\eta^p \mapsto \fhat^p(\etastar^\gamma, \eta^p)$,
+the same reasoning as \cref{eq:kl_difference_decomposition} implies that
+%
+\begin{align*}
+%
+\fbar^p(\etastar^\gamma, \etahat^p) - \fbar^p(\etastar^\gamma, \etastar^p)
+\le 2 \sup_{\eta^p \in \etadom}
+    \abs{\fbar^p(\etastar^\gamma, \eta^p) -
+         \fhat^p(\etastar^\gamma, \Z^\gamma, \eta^p, \Z^p).
+}
+%
+\end{align*}
+%
+Combining the previous two displays gives
+%
+\begin{align*}
+%
+\norm{\etahat^p - \etastar^p}_2^2 \le
+\frac{2}{C_3} \sup_{\eta \in \etadom}
+    \abs{ \fbar^p(\eta^\gamma, \eta^p) -
+          \fhat^p(\eta^\gamma, \Z^\gamma, \eta^p, \Z^p)}.
+%
+\end{align*}
+
+Next, we use \cref{assu:local_ulln} to control the  difference between the
+samples and limiting objectives. Take $\delta' = C_3 \delta / 2$.
+Let
+%
+\begin{align*}
+%
+\err^p :={}& \sup_{\eta^\gamma, \eta^p} \abs{\fhat^p(\eta^\gamma,
+\Z^\gamma, \eta^p, \Z^p) - \f^p(\eta^\gamma, \eta^p)}
+\quad\textrm{and}\quad
+\err :={}
+\frac{1}{P} \sup_{\eta \in \etadom} \abs{ \klobj{\eta | \Z} -  \klfullobj{\eta}}.
+%
+\end{align*}
+%
+Since we can only increase the error by allowing the global parameter to vary
+separately for each local ULLN, we have $\err \le \frac{1}{P} \sump \err^p$.
+Therefore, $\{\forall p: \err^p \le \delta'\} \Rightarrow \{ \err \le \delta' \}$
+and $\{ \err > \delta' \} \Rightarrow \{\exists p: \err^p > \delta' \}$.
+A union bound then gives
+%
+\begin{align}\label{eq:ulln_error_small}
+%
+\p(\err > \delta) \le
+\p\left(\bigcup_p \left\{ \err^p > \delta' \right\} \right) \le \sump
+\p\left(\err^p > \delta' \right)
+\le C_1 \exp\left(-C_2 N + \log P \right) \le \varepsilon,
+%
+\end{align}
+%
+where the final inequality follows from taking $N \ge N_0$ large enough to
+satisfy \cref{assu:local_ulln} and
+%
+$N_0 \ge C_2^{-1} \left(
+\log P - \log \left(C_1^{-1} \varepsilon\right)
+\right)$.
+
+By \cref{eq:etap_strict_min,eq:etagamma_strict_min},
+%
+\begin{align*}
+%
+\bigcap_{p=1}^P \left\{ \err^p < \delta' \right\}
+\Rightarrow \bigcap_{p=1}^P \left\{\norm{\etahat^p - \etastar^p}_2^2 \le \delta
+\right\}
+\textrm{ and }
+\bigcap_{p=1}^P
+\left\{ \err^p < \delta' \right\} \Rightarrow \err < \delta' \Rightarrow
+\norm{\etahat^\gamma - \etastar^\gamma}_2^2 \le \delta.
+%
+\end{align*}
+%
+The conclusion then
+follows from \cref{eq:ulln_error_small}.
+%
+\end{proof}
+
+
+\begin{proof} of \cref{ex:local_minimum}.
+
+Suppose that, for each $p$, $\fbar^p(\eta^\gamma, \eta^p)$ is
+twice-differentiable and convex, and the domain is compact.  Let the first and
+second-order derivatives be denoted by $\nabla \fbar^p$ and $\nabla^2 \fbar^p$
+respectively, and let $C_3$ lower bound the minimum eigenvalue of all
+$\nabla^2 \fbar^p$.
+
+
+Then a Taylor series expansion with integral remainder gives
+%
+\begin{align*}
+%
+\fbar^p(\eta^\gamma, \eta^p) - \fbar^p(\etastar^\gamma, \etastar^p) ={}&
+\nabla \fbar^p(\etastar^\gamma, \etastar^p)
+\begin{pmatrix}
+    \eta^\gamma - \etastar^\gamma \\
+    \eta^p - \etastar^p
+\end{pmatrix}
+%
++ R^p(\etastar, \eta)
+%
+\end{align*}
+%
+where
+%
+\begin{align*}
+%
+R^p(\etastar, \eta) =
+\int_0^1
+\begin{pmatrix}
+    \eta^\gamma - \etastar^\gamma \\
+    \eta^p - \etastar^p
+\end{pmatrix}^\trans
+\nabla^2 \fbar(\etastar^\gamma + t (\eta^\gamma - \etastar^\gamma),
+               \etastar^p + t (\eta^p - \etastar^p))
+\begin{pmatrix}
+    \eta^\gamma - \etastar^\gamma \\
+    \eta^p - \etastar^p
+\end{pmatrix}
+(1-t) dt.
+%
+\end{align*}
+%
+(Apply \citet[Theorem B.2]{dudley:2018:real} with $t \mapsto
+\fbar(\etastar^\gamma + t (\eta^\gamma - \etastar^\gamma), \etastar^p + t
+(\eta^p - \etastar^p))$.)  Since $\etastar$ is an optimum,
+$\sump \nabla \fbar^p(\etastar^\gamma, \etastar^p) = 0$.  Since
+$\nabla^2 \fbar^p$ is positive definite
+for every $p$, there exists a $C_3 \ge 0$ such that
+%
+\begin{align*}
+%
+R^p(\etastar, \eta) \ge
+    C_3 \left(\norm{\eta^\gamma - \etastar^\gamma}_2^2 +
+              \norm{\eta^p - \etastar^p}_2^2 \right).
+%
+\end{align*}
+%
+It follows that
+%
+\begin{align*}
+%
+\klfullobj{\eta} - \klfullobj{\etastar} \ge
+    C_3 \left( P  \norm{\eta^\gamma - \etastar^\gamma}_2^2 +
+    \sump \norm{\eta^p - \etastar^p}_2^2
+    \right),
+%
+\end{align*}
+%
+from which \cref{assu:local_minimum} follows.
+
+\end{proof}

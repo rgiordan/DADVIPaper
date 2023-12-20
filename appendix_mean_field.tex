@@ -1,0 +1,16 @@
+In practice, the mean-field assumption in variational inference need not always
+correspond to factorization over every single one-dimensional component of each
+parameter. Rather, it often represents a factorization into individual
+parameters as described in a model. For instance, consider a parameter within a
+model that represents a distribution over $K$ outcomes, so that its elements are
+positive and sum to one. A natural prior for such a parameter might be a
+Dirichlet distribution. If this parameter exists as one parameter among multiple
+parameters in our model, a mean-field assumption will typically provide a
+separate factor for this parameter, but it will not further factorize across
+components within the parameter. So $\Sigma(\eta)$ may, in fact, be
+block-diagonal rather than purely diagonal, where each block size will
+correspond to the size of a parameter. 
+
+Researchers have explored other options between the extremes of the mean-field
+and full-rank assumptions for Gaussian approximations within variational
+inference; see, for instance, \citep{zhang:2022:pathfinder}.

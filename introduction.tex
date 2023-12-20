@@ -1,0 +1,125 @@
+The promise of ``black-box'' Bayesian inference methods is that the user need
+provide only a model and data. Then the black-box method should take care of
+approximating the posterior distribution and reporting any summaries of interest
+to the user. In settings where Markov chain Monte Carlo (MCMC) faces prohibitive
+computational costs, users of Bayesian inference have increasingly turned to
+variational methods. In turn, to improve ease of use in these cases, researchers
+have developed a variety of ``black-box variational inference'' (BBVI) methods
+\citep{ranganath:2014:bbvi, blei:2016:variational}. ``Automatic differentiation
+variational inference'' (ADVI) represents a particularly widely used variant of
+BBVI \citep{kucukelbir:2017:advi}, available in multiple modern probabilistic
+programming languages.
+
+However, researchers have observed that BBVI methods can face challenges with
+both automation \citep{dhaka:2020:robuststochasticvi, welandawe:2022:robustbbvi}
+and accuracy (\citealp[][Exercise 33.5]{mackay:2003:information};
+\citealp[][Chapter 10.1.2]{bishop:2006:pattern}; \citealp{turner:2011:two};
+\citealp[][Propositions 3.1--3.3]{huggins:2020:validated}). In particular, BBVI
+takes an optimization-based approach to approximate Bayesian inference. The
+optimization objective in a typical BBVI method involves an intractable
+expectation over the approximating distribution. Most BBVI algorithms, including
+ADVI, avoid computing the intractable expectation by using stochastic gradient
+(SG) optimization, which requires only unbiased draws from the gradient of the
+intractable objective. However, the use of SG is not without a price: SG
+requires careful tuning of the step size schedule, can suffer from poor
+conditioning, and convergence can be difficult to assess. On the accuracy side,
+observe that ADVI minimizes the reverse Kullback-Leibler (KL) divergence over
+Gaussian approximating distributions. The especially common mean-field variant
+of this scheme, where the Gaussians are further constrained to fully factorize,
+notoriously produces poor posterior covariance estimates (\citealp[][Exercise
+33.5]{mackay:2003:information}; \citealp[][Chapter 10.1.2]{bishop:2006:pattern};
+\citealp{turner:2011:two}), and research suggests variants beyond mean-field may
+suffer as well \citep[][Proposition 3.2]{huggins:2020:validated}. In many cases,
+these posterior covariance estimates can be efficiently corrected, without
+fitting a more complex approximation, through a form of sensitivity analysis
+known as ``linear response'' (LR) \citep{giordano:2015:lrvb,
+giordano:2018:covariances}. However, LR cannot be used directly with SG, both
+because the optimum is only a rough approximation and because the objective
+function itself is intractable.
+
+The stochastic optimization literature offers a well-studied alternative to SG:
+the ``sample average approximation'' (SAA), which uses a single set of draws ---
+shared across all iterations --- to approximate an intractable expected
+objective. See \citet{kim:2015:guidetosaa} for a review of the SAA. In fact, a
+number of papers have applied SAA to BBVI
+\citep{giordano:2018:covariances,domke:2018:importanceweightingvi,domke:2019:divideandcouplevi,
+broderick:2020:automatic,wycoff:2022:sparsebayesianlasso,giordano:2023:bnp}. But
+before the present work and contemporaneous work by
+\citet{burroni:2023:saabbvi}, there had not yet been a systematic study of the
+efficacy of SAA for BBVI. \cite{burroni:2023:saabbvi} chooses an increasing
+sequence of sample sizes in SAA, applied to variational inference with the
+full-rank Gaussian approximation family, in order to achieve an increasingly
+accurate approximation to the exact variational objective. In a complementary
+vein, we here instead explore the promise and challenges of using SAA in BBVI
+with a small, fixed number of samples --- with a focus on both automation and
+accuracy. We call our method ``DADVI'' for ``deterministic ADVI,'' and we use
+the unmodified ``ADVI'' to refer to the ADVI variational approximation optimized
+with SG.
+
+When considering a general optimization problem, the case for SAA over SG may at
+first look weak. In full generality, SAA and SG require roughly the same number
+of draws, $\znum$, for a particular accuracy. And the total number of draws required for a
+given accuracy is expected to increase linearly in dimension \citep[][Chapter
+5]{nemirovski:2009:sgdvsfixed,shapiro:2021:lectures}. Since SG uses each draw
+only once, and SAA uses each draw at each step of a multi-step optimization
+routine, SAA is, all else equal, expected to require more computation than SG in
+the worst-case scenario, particularly in high dimensions
+\citep{royset:2013:optimalsaa, kim:2015:guidetosaa}.  However, results in
+particular cases can be quite different than these general conclusions.
+
+We demonstrate that the SAA can be competitive with SG in BBVI applications both
+theoretically and in experiments using real-world models and datasets.
+Theoretically, we consider two cases common in Bayesian inference: (1) log
+posteriors that are approximately quadratic, and (2) posteriors that have a
+``global--local'' structure: roughly, there are some (global) parameters of
+fixed dimension as the data set size grows, and some (local) parameters whose
+dimension grows with the data cardinality. We further assume, as is typically
+the case, that the user is interested in a relatively small number of quantities
+of interest that are specified in advance, as opposed to, say, the maximum value
+of a high-dimensional vector of posterior means.  In these cases, our theory
+shows that DADVI does not suffer from the worst-case dimensional dependence that
+the classical SAA literature suggests. In our experiments, we show that DADVI
+produces competitive posterior approximations in very high-dimensional problems,
+even with only $\znum = \DADVINumDraws$ draws, and even in models more complex
+than the cases that we analyze theoretically.  Notably, in high dimensions, LR
+covariances are considerably more computationally efficient --- and more
+accurate --- than fitting a more complex variational approximation, such as a
+full-rank normal. To our knowledge, the advantages of SAA for performing
+sensitivity analysis, either within or beyond Bayesian inference, have not been
+widely recognized.
+
+Conversely, we show that SAA is not applicable to all BBVI methods. For example,
+we show that, when using a full-rank ADVI approximation in high dimensions, the
+SAA approximation leads to a degenerate variational objective unless the number
+of draws used is very high --- on the order of the number of parameters.
+The intuition behind how SAA fails in such a case applies to other highly
+expressive BBVI approximations such as normalizing flows
+\citep{rezende:2015:flows}.
+%
+In high dimensions, it is thus a combination of the relative paucity of the
+mean-field ADVI approximation, together with special problem structure, that
+makes DADVI a useful tool. Nevertheless, such cases are common enough that the
+benefits of DADVI remain noteworthy.
+
+In what follows, we start by reviewing ADVI (\cref{sec:setup}) and describing
+DADVI (\cref{sec:dadvi}), our SAA approximation. We highlight how DADVI, unlike
+ADVI, allows the use of LR covariances (\cref{sec:linear_response}). In
+\cref{sec:mc_error_estimation}, we demonstrate how to approximately quantify
+DADVI's Monte Carlo error, which arises from the single set of Monte Carlo
+draws, and we note that such a quantification is not readily available for ADVI
+due to its use of SG. We provide theory to support why DADVI can be expected to
+work in certain classes of high-dimensional problems
+(\cref{sec:high_dim_normal,sec:high_dim_global_local}), and we provide a
+counterexample to demonstrate how DADVI can fail with very expressive BBVI
+approximations (\cref{sec:dadvi_full_rank}). In a range of real-world examples
+(\cref{sec:models_data}), we show that DADVI inherits the generally recognized
+advantages of SAA, including the availability of off-the-shelf higher-order
+optimization and reliable convergence assessment. We find experimentally that
+DADVI, paired with LR covariances, can provide comparable posterior mean
+estimates and more accurate posterior uncertainties
+(\cref{sec:experiments_posterior_accuracy}) with less computation than
+corresponding ADVI methods (\cref{sec:experiments_runtime}), including recent
+work that endeavors to improve and automate the tuning of SG for BBVI
+\citep{welandawe:2022:robustbbvi}, and we show that our estimates of Monte Carlo
+sampling variability are accurate even for small values of $\znum$, around
+$\DADVINumDraws$ (\cref{sec:experiments_sampling_variability}).

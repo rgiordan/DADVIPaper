@@ -1,0 +1,161 @@
+We will show that in the normal model, the number of samples required to
+estimate any particular posterior mean do not depend on the dimension.  Further,
+the LR covariances from DADVI are exact, irrespective of the problem dimension,
+and are in fact independent of the particular $\Z$ used.  Conversely, the
+worst-case error in the DADVI posterior mean estimates across all dimensions
+will grow as dimension grows.
+
+Take the quadratic model
+%
+\begin{align}\label{eq:quadratic_model}
+%
+\logjoint =
+    -\frac{1}{2} \theta^\trans A \theta + B^\trans \theta =
+    -\frac{1}{2} \trace{A \theta \theta^\trans } + B^\trans \theta
+%
+\end{align}
+%
+for a known matrix $A \in \rdom{\thetadim \times \thetadim}$ and vector $B \in
+\rdom{\thetadim}$, possibly depending on the data $\y$.  Such a model arises,
+for example, when approximating the posterior of a conjugate normal location
+model, in which case the posterior mean $A^{-1} B$ and covariance matrix
+$A^{-1}$ would depend on the sufficient statistics of the data $\y$.
+Additionally, as we show below, the exact variational objective is available in
+closed form for the quadratic model. Of course, there is no need for a
+variational approximation to a posterior which is available in closed form, nor
+any need for a stochastic approximation to a variational objective which is
+available in closed form. However, studying quadratic models can provide
+intuition for the dimension dependence of DADVI approximations when the problem
+is {\em approximately} quadratic.
+
+We first derive the exact variational objective function and its optimum. Recall
+our notation of \cref{sec:setup}, in which the variational posterior mean is
+denoted $\etamu$ and the log standard deviation is denoted $\etaxi$.  For
+compactness, we additionally write the vector of variational standard deviation
+parameters as $\etasigma = \exp(\etaxi)$, where $\exp(\cdot)$ is applied
+component-wise. Let $\etasigma^2$ be the corresponding vector of variance
+parameters. Note that
+%
+\begin{align*}
+%
+\expect{\q(\theta \vert \eta)}{\theta} ={}& \etamu
+\quad\textrm{and}\quad
+\expect{\q(\theta \vert \eta)}{\theta \theta^\trans} ={}
+    \etamu \etamu^\trans + \diag{\etasigma^2}, \\
+\textrm{so } \quad
+\klfullobj{\eta} ={}&
+    \frac{1}{2} \etamu^\trans A \etamu
+    -\frac{1}{2} \etasigma^\trans (A \odot I_{\thetadim}) \etasigma
+    - B^\trans \mu
+    -\sumd \log \etasigma[d].
+%
+\end{align*}
+%
+The exact optimal parameters are thus
+%
+\begin{align*}
+%
+\etamustar = A^{-1}B
+\quad\textrm{and}\quad
+\etasigmastar[d] = (A_{dd})^{-1/2}.
+%
+\end{align*}
+%
+\def\zbar{\bar{z}}
+\def\zzbar{\overline{zz^\trans}}
+\def\sigmat{S}
+\def\zcov{\hat{\Sigma}_{z}}
+%
+If the objective had arisen from a multivariate normal posterior, observe the
+variational approximation to the mean is exactly correct, but the covariances
+are, in general, mis-estimated, since $1 / A_{dd} \ne (A^{-1})_{dd}$ unless the
+true posterior covariance is diagonal.
+
+We next make an asymptotic argument that we can expect any particular DADVI output
+to be a good estimate of the optimum of the exact objective, even for a small $\znum$.
+%
+\begin{proposition}\label{prop:normal_accurate}
+    %
+Consider any parameter dimension index $d \in \{1, \ldots, \thetadim\}$,
+selected independently of $\Z$. In the quadratic model, we have
+$\etasigmahat[d]^{-2} - \etasigmastar[d]^{-2}= O_p(\znum^{-1/2})$ and
+$\etamuhat[d] - \etamustar[d] = O_p(\znum^{-1/2})$. The constants do not depend
+on $\thetadim$.
+%
+\end{proposition}
+
+\begin{proof}
+We can compare the optimal parameters with the DADVI estimates.  Let $\zbar :=
+\meann \z_n$.  Let $\dequal$ denote equality in distribution and let $Q \sim
+\chi^2_{\znum-1}$ denote a chi-squared random variable with $\znum-1$ degrees of
+freedom. We show in \cref{app:normal_accurate_proof} that, irrespective of the
+dimension of the problem,
+%
+\begin{align*}
+%
+\etamuhat = \etamustar - \etasigmahat \odot \zbar
+\quad\textrm{and}\quad
+\etasigmahat[d] \dequal \left(\frac{Q}{\znum} A_{dd} \right)^{-1/2}.
+%
+\end{align*}
+%
+So $\expect{\normz}{\etasigmahat[d]^{-2}} = \frac{\znum - 1}{\znum} A_{dd} =
+\frac{\znum - 1}{\znum} \etasigmastar[d]^{-2}$, and $\etasigmahat[d]^{-2} -
+\etasigmastar[d]^{-2}= O_p(\znum^{-1/2})$.  It follows that $\etamuhat[d] -
+\etamustar[d] = O_p(\znum^{-1/2})$ as well.
+\end{proof}
+
+The next remark suggests that, in cases with $N \ll \thetadim$, the
+worst-estimated linear combination of means is poorly estimated; note that in
+choosing the worst case we can overfit the draws $\Z$. It follows that the
+behaviors for any particular element of $\etamuhat$ and $\etasigmahat$ above do
+not imply that DADVI performs uniformly well across all parameters. 
+%
+\begin{remark} \label{rem:worst_case}
+%
+In the quadratic model, we have
+%
+\begin{align*}
+%
+\expect{\normz}{
+    \sup_{\nu: \norm{\nu}_2 = 1}
+    \nu^\trans \frac{\etamuhat - \etamustar}{\etasigmahat}} =
+\expect{\normz}{
+    \sup_{\nu: \norm{\nu}_2 = 1} \nu^\trans \zbar} =
+    \expect{\normz}{\sqrt{\zbar^\trans \zbar}} \approx
+    \sqrt{\frac{\thetadim}{N}}.
+%
+\end{align*}
+%
+In the first term of the preceding display, the division in the term $(\etamuhat
+- \etamustar) / \etasigmahat$ is elementwise. The final relation follows since
+$\sqrt{N} \zbar$ is a $\thetadim$-dimensional standard normal, so $N
+\zbar^\trans \zbar$ is a $\chi^2_{\thetadim}$ random variable.
+%
+\end{remark}
+%
+
+Finally, we show that the LR covariances reported from DADVI
+are exact, regardless of how small $\znum$ is or, indeed, the particular values of $\Z$.
+Recall that, by contrast, the exact mean-field variance estimates are
+notoriously unreliable as estimates of the posterior variance. 
+%
+\begin{proposition}\label{prop:mvn_lr}
+%
+In the quadratic model, we have
+%
+\begin{align*}
+%
+\lrcov{\q(\theta \vert \etahat)}{\theta} =
+\fracat{d \etamuhat}{d t^\trans}{\etahat} = A^{-1},
+%
+\end{align*}
+%
+with no $\Z$ dependence.
+\end{proposition}
+%
+See \cref{app:mvn_lr_proof} for a proof.
+Since $A^{-1}$ is in fact the exact posterior variance,
+the linear response covariance is exact in this case irrespective of how small
+$\znum$ is, in contrast to $\etasigmastar$, which can be a poor estimate of
+the marginal variances unless $A$ is diagonal.

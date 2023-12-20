@@ -1,0 +1,113 @@
+The preceding sections demonstrated that, in certain cases, DADVI can work well
+to estimate the optimum of the mean-field ADVI problem even in high dimensions.
+By contrast, we now show that DADVI will behave pathologically for the full-rank
+ADVI problem in high dimensions unless a prohibitively large number of draws are
+used. The intuition we develop for full-rank ADVI also extends to other highly
+expressive variational approximations such as normalizing flows.
+
+In forming the full-rank optimization problem, ADVI parameterizes $\q(\theta |
+\eta)$ using a mean $\etamu$ and a $\thetadim \times \thetadim$ matrix $\etar$
+in place of $\etasigma$.  Formally, the full-rank approximation taking
+$\theta(\eta, \z) = \etamu + \etar \z$ in place of the mean-field
+reparameterization given in \cref{eq:reparameterization_theta}. Letting
+$|\cdot|$ denote the matrix determinant, the KL divergence becomes
+%
+\begin{align}\label{eq:reparameterization_fr_kl}
+    %
+    \klobj{\eta | \Z} := -\frac{1}{2} \log |\etar \etar^\trans| -
+        \meann \log \p(\etamu + \etar \z_n, \y).
+    %
+\end{align}
+%
+The preceding display can be compared with the corresponding mean-field
+objective \cref{eq:reparameterization_kl}.
+%
+For the present section, we will
+write $\klobj{\eta | \Z} = \klobj{(\mu, \etar) | \Z}$.  Under this
+parameterization, $\cov{\q(\theta \vert \eta )}{\theta} =
+\cov{\normz}{\theta(\eta, \z)} = \etar \etar^\trans$, so the matrix $\etar$ can
+be taken to be any square root of the covariance matrix of $\q(\theta \vert
+\eta)$.  In practice, $\etar$ is typically taken to be lower-triangular (i.e., a
+Cholesky decomposition), though the particular form of the square root used will
+not matter for the present discussion.
+
+Suppose we are attempting to optimize the full-rank ADVI problem with DADVI when
+$\thetadim > \znum$, so that $\theta$ has more dimensions than there are draws
+$\z_n$.  Our next result shows that, in such a case, DADVI will behave
+pathologically.
+
+\begin{theorem}\label{thm:fradvi}
+%
+Consider a full-rank ADVI optimization problem with $\thetadim > \znum$. Then,
+for any $\mu$, we have $\inf_{\etar} \klobj{(\mu, \etar) | \Z} = -\infty$, so
+the DADVI estimate is undefined.
+%
+\begin{proof}
+%
+In the full-rank case, the objective function $\klobj{\eta | \Z}$ in
+\cref{eq:reparameterization_fr_kl} depends on $\etar$ only through the products
+$\etar \z_n$ and the entropy term, which is $\frac{1}{2} \log |\etar
+\etar^\trans| = \log |\etar|$.  Since $\znum < \thetadim$, we can write $\etar =
+\etar^{\Z} + \etar^{\perp}$, where $\etar^{\Z}$ is a rank-$\znum$ matrix
+operating on the subspace spanned by $\Z$ and $\etar^\perp$ is a
+rank-$(\thetadim - \znum)$ matrix satisfying $\etar^\perp z_n = 0$ for all
+$n=1,\ldots,\znum$. Then we can rewrite the DADVI objective as
+%
+\begin{align}
+%
+\klobj{\eta | \Z}  = -\log |\etar^{\Z} + \etar^{\perp}| -
+    \meann \log \p(\etamu + \etar^\Z \z_n, \y). 
+    \label{eq:full_rank_dadvi_objective}
+%
+\end{align}
+%
+Since $\sup_{\etar^{\perp}} \log |\etar^{\Z} + \etar^{\perp}| = \infty$, the
+result follows.\footnote{Recall that the log determinant is the sum of the logs of the
+eigenvalues of $\etar$, which can be made arbitrarily large as $\etar^{\perp}$
+varies freely.}
+%
+\end{proof}
+%
+\end{theorem}
+
+What will happen, in practice, if one tries to use DADVI in the full-rank case?
+Denote the maximum a posteriori (MAP) estimate as $\hat\theta :=
+\argmax_{\theta} \log \p(\theta, \y)$, and note that the first term on the right
+hand side of \cref{eq:full_rank_dadvi_objective} is most negative when $\etamu =
+\hat\theta$ and $\etar^\Z$ is the zero matrix.  A zero $\etar^\Z$ is
+impermissible because, when $\etar^\Z$ is actually the zero matrix, then
+$\etar^{\Z} + \etar^{\perp}$ is singular, and $\log |\etar^{\Z} + \etar^{\perp}|
+= -\infty$.\footnote{ Indeed, if $\etar^\Z = 0$, then $\q(\theta \vert \eta)$
+would have zero variance in any direction spanned by $\Z$, $\p(\theta, \y)$
+would not be absolutely continuous with respect to $\q(\theta \vert \eta)$, and
+the reverse KL divergence would be undefined.} However, for any $\varepsilon >
+0$ and $M > 0$, we can take $\etar^\Z \z_n = \varepsilon \z_n$ and $\etar^\perp
+v = M v$ for any $v \perp \Z$, so that $\etar$ is full-rank. 
+When $\etamu = \hat\theta$, one can always decrease both terms on the right hand
+side of \cref{eq:full_rank_dadvi_objective} via the following two-step
+procedure. First, decrease $\varepsilon$ by any amount and thereby decrease the
+first term. Second, given that $\varepsilon$, increase $M$ by a sufficient
+amount to decrease the second term as well.
+
+The degeneracy described in \cref{thm:fradvi} can be avoided if one uses at
+least as many draws as there are model parameters, i.e., if $\znum \ge
+\thetadim$.  However, based on the classical optimization results discussed
+above (e.g. \citet[Chapter 5]{shapiro:2021:lectures}), one might expect
+full-rank ADVI to require $\znum$ to be on the order of $\thetadim^2$, since the
+full-rank variational parameters have dimension of order $\thetadim^2$ due to
+the inclusion of a full-rank covariance matrix.  We proved above that the
+classical dimension dependence of $\znum$ on the dimension of the variational
+parameters is unnecessarily pessimistic for certain mean-field ADVI objectives.
+It is an interesting question for future work to ask whether the classical
+dimension dependence is also pessimistic for the full-rank approximation: that
+is, whether DADVI for full-rank ADVI actually requires $\znum$ to be on the
+order $\thetadim$ rather than $\thetadim^2$, or somewhere in between.
+
+Finally, we note that the failure of DADVI in the full-rank case appears to be
+indicative of a general phenomenon. Any smooth function mapping the columns of
+$\Z$ into $\thetadom$ must span an $\znum$-dimensional sub-manifold of
+$\thetadom$.  If a variational approximation is rich enough to increase the
+entropy to an arbitrary degree on the complement of this submanifold, then DADVI
+will lead to a degenerate solution. In this sense, it is in fact the
+inexpressivity of the mean-field variational assumption that allows DADVI to
+work in high dimensions.

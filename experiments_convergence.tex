@@ -1,0 +1,67 @@
+\TracesARM{}
+\TracesNonARM{}
+
+By examining the optimization traces, we next see that the ADVI methods
+eventually find better optima (in terms of the variational objective) than
+DADVI, but they typically take longer than DADVI to terminate, in agreement with
+\cref{sec:experiments_runtime}.
+
+In order to understand the progress of ADVI and RAABBVI towards their optimum,
+we evaluated the variational objective on a set of 1000 independent
+draws\footnote{We used the same set of independent draws for each method
+to ensure a like-to-like comparison.} for each method along its optimization.
+This evaluation is computationally expensive, but gives a good estimate of the
+true objective $\klfullobj{\cdot}$ along the optimization paths. Specifically,
+letting $\eta^{i}_{\method}$ denote the variational parameters for method
+$\method$ after $i$ model evaluations, and letting $\Zindep$ denote the set of 1000
+independent draws, we evaluated $\klobj{\eta^{i}_{\method} \vert \Zindep}$ for
+each method and for steps $i$ up to convergence.
+
+In order to place the optimization traces on a common scale, for each
+method we center and scale the objective values by the DADVI optimum
+and sampling standard deviation. In particular, we report $\kappa^i_{\method}$,
+which is equal to
+%
+\begin{align}\label{eq:trace_normalization}
+%
+\kappa^i_{\method} :=
+\frac{
+        \klobj{\eta^{i}_{\method} \vert \Zindep} -
+        \klobj{\etahat_{\dadvi} \vert \Zindep}}
+    {\sqrt{\varhat{\Zindep}{\klobj{\etahat_{\dadvi} \vert \z}}}}
+%
+\end{align}
+%
+where $\varhat{\Zindep}{\klobj{\etahat_{\dadvi} \vert \z}}$ denotes an
+approximation to $\var{\normz}{\klobj{\etahat_{\dadvi} \vert \z}}$ using the
+sample variance over $\Zindep$.  Let $i^*_{\method}$ denote the number of model
+evaluations taken by a method at convergence.  Then, under
+\cref{eq:trace_normalization}, $\kappa^{i^*_{\dadvi}}_{\dadvi} = 1$ by
+definition, $\kappa^{i^*_{\method}}_{\method} < 1$ indicates a better optimum at
+convergence for $\method$ relative to DADVI, and $i^*_{\method} < i^*_{\dadvi}$
+indicates faster convergence for $\method$ in terms of model evaluations
+relative to DADVI.  The paths traced by $\kappa^i_{\method}$ may be
+non-monotonic because the algorithms do not have access to $\Zindep$.
+
+The optimization traces for ARM and non-ARM models are shown respectively in
+\cref{fig:traces_arm_graph,fig:traces_nonarm_graph}, with suitably transformed
+axes for easier visualization.  In many cases, the ADVI methods
+eventually find better optima (in terms of the variational objective) than
+DADVI, but ADVI typically takes longer to do so (the slower
+convergence is also shown in
+\cref{fig:runtimes_arm_graph,fig:runtimes_nonarm_graph}).  As can be seen on the
+non-ARM models in \cref{fig:traces_nonarm_graph}, the ADVI methods
+sometimes reach lower objective function values sooner than DADVI, but continue
+to optimize because they do not have access to the computationally expensive
+$\klobj{\eta^{i}_{\method} \vert \Zindep}$ and have not detected convergence
+according to their own criteria.  Similarly, DADVI sometimes finds lower values
+of $\klfullobj{\cdot}$ along its path to optimization, but does not terminate
+because these points correspond to sub-optimal values of $\klobj{\cdot \vert
+\Z}$.
+
+The results in \cref{fig:traces_arm_graph,fig:traces_nonarm_graph} suggest the
+possibility of initializing ADVI with DADVI and then optimizing further with
+stochastic methods in cases when low values of the objective function are of
+interest.  However, as seen in \cref{sec:experiments_posterior_accuracy} above,
+lower values of the variational objective do not necessarily translate into
+better posterior moment estimates.

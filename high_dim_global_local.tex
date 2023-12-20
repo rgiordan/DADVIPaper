@@ -1,0 +1,334 @@
+\def\err{\mathcal{E}}
+\newcommand{\f}{f} % Global / local objective
+\newcommand{\fbar}{\bar{f}} % Global / local expected objective
+\newcommand{\fhat}{\hat{f}} % Global / local sample objective
+\newcommand{\ftil}{\tilde{f}} % Expected over z p
+% \newcommand{\etatilp}[1][p]{{\tilde{\eta}^{#1}}} % Optimum
+% \newcommand{\etatilgamma}[1][\gamma]{{\tilde{\eta}^{#1}}} % Optimum
+
+We next show that the number of samples required for DADVI estimation grows only
+logarithmically in dimension when the target joint distribution can be written
+as a large number of nearly independent problems that share a single,
+low-dimensional global parameter. 
+
+Formally, we say a problem has a ``global--local'' structure if we have the
+following decomposition:\footnote{Each local parameter is, itself, a vector, so
+we use superscripts to distinguish local parameters, retaining subscripts for
+particular elements of vectors.}
+%
+\begin{align}\label{eq:global_local}
+%
+\theta = \begin{pmatrix}
+\gamma\\
+\lambda^1 \\
+\vdots\\
+\lambda^P
+\end{pmatrix}
+%
+\quad\textrm{and}\quad
+\logjoint = \sump \ell^p(\gamma, \lambda^p) + \ell^\gamma(\gamma),
+%
+\end{align}
+%
+where $\lambda^p \in \rdom{\lambdadim}$ and $\gamma \in \rdom{\gammadim}$, and
+any data dependence is implicit in the functions $\ell^p$ and $\ell^\gamma$.
+Here, the ``global'' parameters $\gamma$ are shared among all ``observations,''
+and the ``local'' $\lambda^p$ parameters do not occur with one another.  We
+assume that the dimensions $\gammadim$ and $\lambdadim$ are small, but that the
+total dimension $\thetadim = \gammadim + P \lambdadim$ is large because $P$ is
+large, i.e., because there are many local parameters.
+
+Each vector involved in the variational approximation --- the variational
+parameter $\eta$, the variational mean $\etamu$ and standard deviation
+$\etasigma$, the normal random variables $\z$, and the sets $\Z$ of normal
+random variables --- can be partitioned into sub-vectors related to the global
+and local parameters. We will denote these subvectors with $\gamma$ and $p$
+superscripts, respectively, so that, e.g., $\eta^\trans = (\eta^\gamma, \eta^1,
+\ldots, \eta^p, \ldots, \eta^P)$, and so on.  We will write $\etadom^\gamma$ for
+the domain of $\eta^\gamma$ and $\etadom^p$ for the domain of $\eta^p$.
+
+If there were no global parameters $\gamma$, then the high dimensionality would
+be no problem for DADVI.  Without shared global parameters, the variational
+objective would consist of $P$ completely independent $\lambdadim$-dimensional
+sub-problems.  According to the classical optimization results referred to at
+the beginning of this section (e.g. \citet[Chapter 5]{shapiro:2021:lectures}),
+under typical regularity conditions, each of these sub-problems' solutions could
+be accurately approximated with DADVI using no more than $\znum=O(\lambdadim)$
+standard normal draws, each of length $\lambdadim$.  The corresponding $\Z$ for
+the combined problem would stack the $\znum$ vectors for each sub-problem,
+resulting in a $\Z$ consisting again of only $\znum$ standard normal draws, each
+of length $P \lambdadim$.  For this combined problem, any particular posterior
+mean of the combined problem (chosen independently of $\Z$) would then be
+well-estimated using only $\znum$ draws, although we would expect more
+adversarial quantities such as $\max_{p} \sup_{v:\norm{v}_2=1}
+v^\trans\left(\hat{\eta}^p - \etastar^{p}\right)$ to be poorly estimated, as we
+saw in the quadratic problem (see \cref{rem:worst_case} in
+\cref{sec:high_dim_normal} above).
+
+The goal of the present section is to state conditions under which the extra
+dependence induced by the shared finite-dimensional global parameter does not
+depart too strongly from the fully independent case described in the preceding
+paragraph.  Our two key assumptions, stated respectively in
+\cref{assu:local_ulln,assu:local_minimum} below, are that each local problem
+obeys a sufficiently strong uniform law of large numbers, and that the local
+problems do not, in a certain sense, provide contradictory information about the
+global parameters.
+
+To state our assumptions, let us first introduce some notation.  Similar to around
+\cref{eq:reparameterization}, we write $\gamma(\eta^\gamma, \z^\gamma) =
+\etamu^\gamma + \exp(\etaxi^\gamma) \odot \z^\gamma$, with analogous notation
+for $\lambda^p(\eta^p, \z^p)$.  
+
+Our first step is to write the variational objectives as the sum of
+``local objectives.''
+%
+\begin{defn}\label{defn:local_objective}
+%
+Define the ``local objective''
+%
+\begin{align*}
+%
+\f^p(\eta^\gamma, \z^\gamma, \eta^p, \z^p) :={}&
+    \ell^p\left(\gamma(\eta^\gamma, \z^\gamma),
+                \lambda^p(\eta^p, \z^p)\right) +
+    \sum_{d=1}^{\lambdadim} {\etaxi}^p_d +
+    \frac{1}{P} \left(
+        \ell^\gamma(\gamma(\eta^\gamma, \z^\gamma)) +
+            \sum_{d=1}^{\gammadim} {\etaxi}^\gamma_d
+    \right).
+\end{align*}
+%
+We then define its expected value $\fbar^p$ and corresponding sample
+approximation $\fhat^p$:
+%
+\begin{align*}
+%
+\fbar^p(\eta^\gamma, \eta^p) :={}&
+    \expect{\normz}{\f^p(\eta^\gamma, \z^\gamma, \eta^p, \z^p)}, 
+&\fhat^p(\eta^\gamma, \Z^\gamma, \eta^p, \Z^p) :={}&
+\meann \f^p(\eta^\gamma, \z^\gamma_n, \eta^p, \z^p_n).
+%
+\end{align*}
+%
+\end{defn}
+With these definitions in hand, we observe that the mean-field objective
+for this model and its sample approximation can be written as functions
+of the local quantities.
+%
+\begin{align*}
+\klfullobj{\eta} ={}&
+    -\sump \fbar^p(\eta^\gamma, \eta^p),
+&
+\klobj{\eta | \Z} ={}&
+    -\sump \fhat^p(\eta^\gamma, \Z^\gamma, \eta^p, \Z^p).
+%
+\end{align*}
+%
+
+
+
+Our key assumption is that a sub-Gaussian uniform law of numbers (ULLN) applies
+to each local objective.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{assu}[A uniform law of large numbers applies to the local problems]
+\label{assu:local_ulln}
+%
+Assume that, for any $\delta > 0$, there exist positive constants $C_1$, $C_2$,
+and $N_0$ depending on $\lambdadim$ and $\gammadim$ but not on $P$ such that for
+$\znum \ge N_0$,
+%
+\begin{align*}
+%
+\p\left(
+\sup_{\left( \eta^\gamma, \eta^p \right) \in \etadom^{\gamma} \times \etadom^p}
+\abs{\fhat^p(\eta^\gamma, \Z^\gamma, \eta^p, \Z^p) -
+     \fbar^p(\eta^\gamma, \eta^p)} > \delta
+\right)
+\le
+\varepsilon := C_1 \exp\left(-C_2 N_0 \right).
+%
+\end{align*}
+%
+\end{assu}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\begin{example}\label{ex:ulln_compact}
+%
+Recall the definition of the ``local objective'' given in
+\cref{defn:local_objective}.  
+Assume that $\etadom^{\gamma} \times \etadom^p$ is compact and $\fbar^p$ is
+Lipschitz. Assume that, for all parameters in $\etadom^{\gamma} \times
+\etadom^p$, the moment generating function of $\fhat^p(\eta^\gamma, \z^\gamma,
+\eta^p, \z^p)$ is finite in a neighborhood of $0$, and that
+$\var{\z}{\fhat^p(\eta^\gamma, \z^\gamma, \eta^p, \z^p)}$ is finite. Then
+\citet[Theorem 12 and Equation 3.17]{shapiro:2003:montecarlosampling} implies that
+\cref{assu:local_ulln} holds.\footnote{The connection between our notation and
+Shapiro's is as follows. Shapiro's $\alpha$ is our $1 - \varepsilon$. Shapiro's
+$\varepsilon$ is our $\delta$. Shapiro's $\delta = 0$ in our case because we
+assume that $\etahat$ is an exact optimum. Shapiro's diameter $D$ is bounded
+because $\etadom^{\gamma} \times \etadom^p$ is compact. Shapiro's $L$ is our
+Lipschitz constant. Shapiro's $n$ is our $\gammadim + \lambdadim$. And Shapiro's
+$\sigma^2_{\textrm{max}}$ is bounded by our assumption on the variance of
+$\fhat^p$.  A similar but more detailed result can also be found in
+\citet[Section 5.3.2]{shapiro:2021:lectures}.}
+%
+\end{example}
+%
+Though restrictive, the conditions of \cref{ex:ulln_compact} are those that give
+rise to the commonly cited linear dimensional dependence for the SAA
+\citep[e.g.][]{nemirovski:2009:sgdvsfixed, kim:2015:guidetosaa,
+homem:2014:montecarlosaa}. Similar conditions to \cref{ex:ulln_compact} can be
+also found in the statistics literature.  For example, \citet[Theorem
+4.10]{wainwright:2019:high} provides a bound of the form in
+\cref{assu:local_ulln} for bounded $f^p$ with Rademacher complexity that
+decreases in $\znum$.
+%
+Note that ADVI objectives, like many maximum likelihood problems, are typically
+over unbounded domains, with non-Lipschitz objective functions.  In such cases,
+one can still use \cref{assu:local_ulln} by showing first that an estimator
+converges suitably quickly to a compact set with high probability, and then use
+\cref{assu:local_ulln} on that compact set; see, e.g., the discussion in Section
+3.2.1 of \citet{wellner:2013:empiricalprocesses}.
+%
+Our present purpose is not to survey the extensive literature on circumstances
+under which \cref{assu:local_ulln} holds, only to demonstrate simple,
+practically relevant conditions under which the SAA does not suffer from the
+worst-case dimensional dependence suggested by the SAA literature.
+
+% The assumption of \cref{ex:ulln_compact} that the domain $\etadom^{\gamma} \times \etadom^p$ is compact
+% may seem artificial, though to connect theory with practice one must somehow
+% assume away pathological behavior at the extremes of non-compact domains.
+% For example, \citet[Theorem 4.10]{wainwright:2019:high} provides a bound
+% of the form \cref{assu:local_ulln} for bounded $f^p$ with Rademacher
+% complexity that decreases in $\znum$.  See also
+% \citep[Theorem 2.4.3]{wellner:2013:empiricalprocesses}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Next, we assume that the optima are well-defined for the local
+problems.%\footnote{The reason \cref{assu:local_minimum} makes explicit the
+%dependence between $P$ and the concentration as a function of $\eta^\gamma$ is
+%because \cref{assu:local_ulln} does not make explicit the dependence of the
+%constants on $\delta$.  By including the factor of $P^{-1}$ in
+%\cref{assu:local_ulln}, we can use the ULLN on each local problem to get the
+%same bound on the global problem. A more refined analysis could trade the
+%dependence between $\znum$ and  $P$ in \cref{assu:local_ulln} off against the
+%concentration as a function of $\eta^\gamma$ in \cref{assu:local_minimum}.}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\begin{assu}[A strict minimum exists] \label{assu:local_minimum}
+%
+Assume that there exists a strict optimum at $\etastar$ in the sense that there
+exists a positive constant $C_3$, not depending on $P$, that satisfies
+%
+\begin{align*}
+%
+\klfullobj{\eta} - \klfullobj{\etastar} \ge
+    P C_3 \norm{\eta^\gamma - \etastar^\gamma}_2^2
+\quad\textrm{ and }\quad
+\klfullobj{\eta} - \klfullobj{\etastar} \ge
+    C_3 \sum_{p=1}^P \norm{\eta^p - \etastar^p}_2^2.
+%
+\end{align*}
+%
+\end{assu}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+As illustrated by \cref{ex:local_minimum} below, a key aspect of
+\cref{assu:local_minimum} is that each local objective function is informative
+about the global parameter, so that as the dimension $P$ grows, the global
+objective function grows ``steeper'' as a function of $\eta^\gamma$.
+
+\begin{example}\label{ex:local_minimum}
+%
+Recall \cref{defn:local_objective}.  
+Suppose that, for each $p$, the expected local objective $\fbar^p(\eta^\gamma,
+\eta^p)$ is twice-differentiable and uniformly convex, in the sense that there
+exists a lower bound $C_3 > 0$ on the eigenvalues of the second derivative matrices
+of $\fbar^p(\eta^\gamma, \eta^p)$, uniformly in both $p$ and $\eta$.  Then, by a
+Taylor series expansion,
+%
+\begin{align*}
+%
+\klfullobj{\eta} - \klfullobj{\etastar} \ge
+    C_3 \left( P  \norm{\eta^\gamma - \etastar^\gamma}_2^2 +
+    \sump \norm{\eta^p - \etastar^p}_2^2
+    \right),
+%
+\end{align*}
+%
+from which \cref{assu:local_minimum} follows.  (See
+\cref{app:high_dim_global_local} for more details.)
+%
+\end{example}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\begin{theorem}\label{thm:global_local}
+%
+Under \cref{assu:local_ulln,assu:local_minimum}, for any $\varepsilon > 0$ and
+$\delta > 0$, there exists an $N_0$, depending only logarithmically on $P$,
+such that $\znum \ge N_0$ implies that
+%
+\begin{align*}
+%
+\p\left(
+\norm{\etahat^\gamma - \etastar^\gamma}_2^2 \le \delta
+\textrm{ and, for all }p\textrm{, }
+        \norm{\etahat^p - \etastar^p}_2^2 \le \delta
+\right)
+\ge 1- \varepsilon.
+%
+\end{align*}
+%
+\begin{proof}[sketch]
+%
+By \cref{assu:local_minimum}, closeness of $\fbar^p(\eta^\gamma, \eta^p)$ and
+$\fhat^p(\eta^\gamma, \Z^\gamma, \eta^p, \Z^p)$ implies closeness of $\etahat^p$
+and $\etastar^p$, and closeness of $\frac{1}{P} \klobj{\eta | \Z}$ and
+$\frac{1}{P} \klfullobj{\eta}$ implies closeness of $\etahat^\gamma$ and
+$\etastar^\gamma$.  Thus, for $\etahat$ to be close to $\etastar$, it suffices
+for $\abs{\fbar^p(\eta^\gamma, \eta^p) - \fhat^p(\eta^\gamma, \Z^\gamma, \eta^p,
+\Z^p)} < \delta'$ simultaneously for all $p$, and for some $\delta'$ that is a function of
+$\delta$ and the constants in \cref{assu:local_minimum}. To apply a union bound
+to \cref{assu:local_ulln} requires decreasing $\varepsilon$ by a factor of $P$,
+which requires increasing $\znum$ by a factor of no more than $\log P$.
+
+See \cref{app:high_dim_global_local} for a detailed proof.
+%
+\end{proof}
+%
+\end{theorem}
+
+The key difference between classical results such as \citet[Chapter
+5]{shapiro:2021:lectures} and our \cref{thm:global_local} is that, in the
+classical results, $\znum = O(P)$, whereas for \cref{thm:global_local}, $\znum =
+O(\log P)$.  Intuitively, $\znum$ need grow only logarithmically in $P$ because
+the global parameters are sharply identified, which approximately decouples the
+remaining local problems.

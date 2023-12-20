@@ -1,0 +1,43 @@
+We next describe best practices in computing LR covariances and the Monte Carlo
+sampling variability of the DADVI estimate.  First, we delineate how to use
+these quantities to check that the number of samples $\znum$ is adequate.
+Second, we discuss how to handle the primary computational difficulty of
+computing both quantities, namely the inverse of the Hessian matrix of the DADVI
+objective at the optimum.
+
+
+In the postprocessing step of \cref{alg:dadvi}, we recommend computing both
+\cref{eq:lr_deriv_dadvi} and \cref{eq:mc_variance} for each quantity of
+interest. One might consider a Bayesian analysis non-robust to sampling
+uncertainty if decisions based on the Bayesian analysis might change due to the
+sampling uncertainty. For instance, in a typical Bayesian analysis, one might
+make decisions based on how far a posterior mean is from a decision boundary in
+units of posterior standard deviation. Therefore, we might expect that sampling
+variability could be decision-changing if the estimated sampling variability
+dominated the estimated posterior uncertainty. In turn, then, we recommend using
+a comparison of the estimated quantities from
+\cref{sec:linear_response,sec:mc_error_estimation} to check the adequacy of the
+sample size $\znum$. If the estimated sampling variability dominates or might
+generally be sufficiently large as to be decision-changing, we recommend
+increasing $\znum$. In the present work we will not attempt to formalize nor to
+analyze such a procedure, although \citet{burroni:2023:saabbvi} and the general
+SAA literature \citep{royset:2013:optimalsaa, kim:2015:guidetosaa} attempt to
+estimate properties of the optimization and optimally allocate computing
+resources in a schedule of increasing sample sizes.
+
+
+In \cref{eq:lr_deriv_dadvi,eq:mc_variance}, the quantities $\scorecov$ and
+$\grad{\eta}{\fun(\etaopt)}$ are typically straightforward to efficiently
+compute with automatic differentiation, but direct computation of $\h^{-1}$
+would incur a computational cost on the order of roughly $\etadim^3$, which can
+be prohibitive in high-dimensional problems.  However, for a given quantity of
+interest $f(\eta)$, it suffices for both \cref{eq:lr_deriv_dadvi,eq:mc_variance}
+to compute the $\etadim$-vector $\h^{-1} \grad{\eta}{\fun(\etaopt)}$. For models
+with very large $\etadim$, we recommend evaluating $\h^{-1}
+\grad{\eta}{\fun(\etaopt)}$ using the conjugate gradient method, which requires
+only Hessian-vector products of the form $\h v$ \citep[Chapter
+5]{nocedal:1999:optimization}. These products can be evaluated quickly using
+standard automatic differentiation software.  As long as the number of
+quantities of interest is not large, both LR and sampling uncertainties can thus
+be computed at considerably less computational cost than a full matrix
+inversion.

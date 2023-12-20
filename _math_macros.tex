@@ -1,0 +1,190 @@
+\algblock{Inputs}{EndInputs}
+\algnotext{EndInputs}
+
+\algblock{Postprocessing}{EndPostprocessing}
+\algnotext{EndPostprocessing}
+
+\newtheorem{assu}{Assumption}
+\makeatletter
+\if@cref@capitalise
+\crefname{assu}{Assumption}{Assumptions}
+\else
+\crefname{assu}{assumption}{assumptions}
+\fi
+\Crefname{assu}{Assumption}{Assumptions}
+\makeatother
+
+\newtheorem{lem}[theorem]{Lemma}
+\makeatletter
+\if@cref@capitalise
+\crefname{lem}{Lemma}{Lemmas}
+\else
+\crefname{lem}{lemma}{lemmas}
+\fi
+\Crefname{lem}{Lemma}{Lemmas}
+\makeatother
+
+\newtheorem{ex}{Example}
+\makeatletter
+\if@cref@capitalise
+\crefname{ex}{Example}{Examples}
+\else
+\crefname{ex}{example}{examples}
+\fi
+\Crefname{ex}{Example}{Examples}
+\makeatother
+
+\newtheorem{defn}{Definition}
+\makeatletter
+\if@cref@capitalise
+\crefname{defn}{Definition}{Definitions}
+\else
+\crefname{defn}{definition}{definitions}
+\fi
+\Crefname{defn}{Definition}{Definitions}
+\makeatother
+
+
+
+% \newtheorem{remark}{Remark}[theorem]
+\crefname{remark}{Remark}{Remarks}
+\Crefname{remark}{Remark}{Remarks}
+% \makeatletter
+% \if@cref@capitalise
+% \crefname{rem}{Remark}{Remarks}
+% \else
+% \crefname{rem}{remark}{remarks}
+% \fi
+% \Crefname{rem}{Remark}{Remarks}
+% \makeatother
+
+
+\newcommand{\dataset}{{\cal D}}
+\newcommand{\fracpartial}[2]{\frac{\partial #1}{\partial  #2}}
+\newcommand{\fracat}[3]{\left. \frac{#1}{#2} \right|_{#3}}
+\newcommand{\trans}{\intercal}
+\newcommand{\const}{C}
+\newcommand{\diag}[1]{\mathrm{Diag}\left(#1\right)}
+\newcommand{\grad}[2]{\nabla_{#1} \left. #2 \right.}
+\newcommand{\hess}[2]{\nabla^2_{#1} \left. #2 \right.}
+\newcommand{\gradat}[3]{\nabla_{#1} \left. #2 \right|_{#3}}
+\newcommand{\norm}[1]{\left\Vert #1\right\Vert}
+\newcommand{\abs}[1]{\left| #1\right|}
+\newcommand{\normp}[1]{\left\Vert #1\right\Vert_*}
+\newcommand{\trace}[1]{\mathrm{Tr}\left(#1\right)}
+\newcommand{\oned}[1][\thetadim]{1_{#1}} % Vector of ones
+\newcommand{\zerod}[1][2\thetadim]{0_{#1}} % Vector of zeros
+\newcommand{\ident}[1][\thetadim]{I_{#1}} % Identity matrix
+\newcommand{\dequal}{\stackrel{d}{=}}
+
+
+\newcommand{\y}{y}  % data
+\newcommand{\z}{Z}  % Reparameterization trick variable
+\newcommand{\Z}{\mathscr{Z}}  % Set of \z
+\newcommand{\znum}{N} % Number of elements of \Z
+\newcommand{\Zindep}{\tilde{\Z}}  % Set of \z
+\newcommand{\p}{\mathcal{P}} % posterior and model probability
+\newcommand{\q}{\mathcal{Q}} % vb approximation
+\newcommand{\gfull}{\mathcal{G}} % Grad of exact KL
+\newcommand{\g}{\hat{\gfull}} % Grad of MC KL
+\newcommand{\hfull}{\mathcal{H}} % Hess of exact KL
+\newcommand{\h}{\hat{\hfull}} % Hess of MC KL
+\newcommand{\scorecov}{\hat{\Sigma}_{s}} % Estimated score covariance
+\newcommand{\fun}{f} % Function of interest
+\newcommand{\etahat}{\hat{\eta}}
+\newcommand{\etatil}{\tilde{\eta}}
+%\newcommand{\etastar}{\stackrel{*}{\eta}} % Superscripts are too high
+%\newcommand{\etastar}{\eta^{*}} % Double superscript
+\newcommand{\etastar}{\accentset{*}{\eta}}
+\newcommand{\ghat}{\hat{g}} % MC estimate of model grad
+\newcommand{\hhat}{\hat{h}} % MC estimate of model hessian
+
+
+\newcommand{\qoi}[1]{\phi\left(#1\right)}
+\newcommand{\qoigrad}[1]{\nabla_{\eta} \phi\left(#1\right)}
+\def\normal#1#2{\mathcal{N}\left(#1 \vert #2\right)}
+\def\wishart#1#2{\mathcal{W}\left(#1 \vert #2\right)}
+\def\normz{\mathcal{N}_{\mathrm{std}}\left(\z\right)}
+\newcommand{\post}{\p(\theta \vert \y)}
+\newcommand{\logjoint}{\log \p(\theta, \y)}
+\newcommand{\etaopt}{\hat{\eta}}
+% \newcommand{\etaoptd}{\hat{\eta}_{D}}
+% \newcommand{\etaopts}{\hat{\eta}_{S}}
+
+% https://stackoverflow.com/questions/1812214/latex-optional-arguments
+\newcommand{\etamu}[1][]{\mu_{#1}}
+\newcommand{\etamuhat}[1][]{\hat{\mu}_{#1}}
+\newcommand{\etamustar}[1][]{\accentset{*}{\mu}_{#1}}
+
+\newcommand{\etasigma}[1][]{\sigma_{#1}}
+\newcommand{\etasigmahat}[1][]{\hat{\sigma}_{#1}}
+\newcommand{\etasigmastar}[1][]{\accentset{*}{\sigma}_{#1}}
+
+\newcommand{\etaxi}[1][]{\xi_{#1}}
+\newcommand{\etaxihat}[1][]{\hat{\xi}_{#1}}
+\newcommand{\etar}[1][]{{R_{#1}}}
+
+\newcommand{\qdom}{\Omega_{\q}}
+\newcommand{\thetadom}{\Omega_{\theta}}
+\newcommand{\rdom}[1]{\mathbb{R}^{#1}}
+\newcommand{\etadom}{\Omega_{\eta}}
+
+\newcommand{\thetadim}{D_{\theta}}
+\newcommand{\etadim}{D_{\eta}}
+\newcommand{\lambdadim}{D_{\lambda}}
+\newcommand{\gammadim}{D_{\gamma}}
+
+\def\expect#1#2{\underset{#1}{\mathbb{E}}\left[#2\right]}
+\newcommand{\meanz}{\frac{1}{\znum} \sum_{n=1}^{\znum}}
+\def\sumn{\sum_{n=1}^{N}}
+\def\meann{\frac{1}{N}\sumn}
+\def\sump{\sum_{p=1}^{P}}
+\def\sumd{\sum_{d=1}^{\thetadim}}
+\def\meann{\frac{1}{N}\sumn}
+\def\expecthat#1#2{\underset{#1}{\widehat{\mathbb{E}}}\left[#2\right]}
+\def\var#1#2{\underset{#1}{\mathrm{Var}}\left(#2\right)}
+\def\varhat#1#2{\underset{#1}{\widehat{\mathrm{Var}}}\left(#2\right)}
+\def\lrcovfull#1#2{\underset{#1}{\mathrm{LRCov}}\left(#2\right)}
+\def\lrcov#1#2{\underset{#1}{\widehat{\mathrm{LRCov}}}\left(#2\right)}
+\def\lrvar#1#2{\underset{#1}{\mathrm{LRVar}}\left(#2\right)}
+\def\cov#1#2{\underset{#1}{\mathrm{Cov}}\left(#2\right)}
+
+\def\kl#1#2{\mathscr{L}\left(#1 || #2\right)}
+\def\klfullobj#1{\mathscr{L}_{\mathrm{VI}}\left(#1\right)}
+\def\klobj#1{\widehat{\mathscr{L}}_{\mathrm{VI}}\left(#1\right)}
+
+\def\expectpost#1{\expect{\post}{#1}}
+
+% High dimensional normals notation
+\def\zbar{\bar{z}}
+\def\zzbar{\overline{zz^\trans}}
+\def\sigmat{S}
+\def\zcov{\hat{\Sigma}_{z}}
+
+
+\DeclareMathOperator*{\argmax}{\mathrm{argmax}}
+\DeclareMathOperator*{\argmin}{\mathrm{argmin}}
+\DeclareMathOperator*{\esssup}{\mathrm{esssup}}
+\DeclareMathOperator*{\essinf}{\mathrm{essinf}}
+\DeclareMathOperator*{\argsup}{\mathrm{argsup}}
+\DeclareMathOperator*{\arginf}{\mathrm{arginf}}
+
+% Experiment results
+
+\def\method{\textrm{\tiny METHOD}}
+\def\nuts{\textrm{\tiny NUTS}}
+\def\sadvi{\textrm{\tiny MF-ADVI}}
+\def\sadvifr{\textrm{\tiny FR-ADVI}}
+\def\raabbvi{\textrm{\tiny RAABBVI}}
+\def\dadvi{\textrm{\tiny DADVI}}
+\def\lrvb{\textrm{\tiny LRVB}}
+
+\def\muerr{\varepsilon^{\mu}}
+\def\sderr{\varepsilon^{\sigma}}
+\def\freqsd{\xi}
+\def\freqerr{\varepsilon^{\xi}}
+
+\def\zbar{\bar{z}}
+\def\zzbar{\overline{zz^\trans}}
+\def\sigmat{S}
+\def\zcov{\hat{\Sigma}_{z}}

@@ -1,0 +1,17 @@
+In this paper, we proposed performing deterministic optimization on an approximate objective
+instead of using traditional stochastic optimization 
+on the intractable objective from the mean-field ADVI problem.
+We found that using our DADVI approach can be faster, more accurate, and more automatic.
+The benefits
+of a deterministic objective can be attributed to the ability to use
+off-the-shelf second-order optimization algorithms with simple convergence
+criteria and linear response covariances.  Additionally, the use of a
+deterministic objective allows computation of Monte Carlo sampling errors for
+the resulting approximation. And these errors can facilitate an explicit tradeoff between computation
+and accuracy.  In contrast to the worst-case analyses in the optimization
+literature, we show theoretically that the number of samples needed for the
+deterministic objective need not scale linearly in the dimension in types of
+statistical models commonly encountered in practice.  Although a deterministic
+objective cannot be used with highly expressive approximating families (such as
+full-rank ADVI), there is reason to believe that deterministic objectives can
+provide practical benefits for many black-box variational inference problems.

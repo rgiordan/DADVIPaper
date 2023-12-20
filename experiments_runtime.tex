@@ -1,0 +1,32 @@
+\RuntimeARM{}
+\RuntimeNonARM{}
+
+We first show that, despite using out-of-the box optimization and convergence
+criteria, DADVI optimization typically converges faster than the ADVI
+methods. DADVI also converges much more reliably; in many cases, the
+ADVI methods either converged early according to their own criteria or failed to
+converge and had to be terminated after a large, pre-determined number of draws.
+
+We measured the computational cost of a method in two different ways: the wall
+time (``runtime''), and the number of model gradient or Hessian-vector product
+evaluations (``model evaluations'').  Neither is a complete measure of a
+method's computational cost, and we hope to provide a more thorough picture by
+reporting both.  For example, we were able to naively parallelize DADVI by
+evaluating the model on each draw of $\Z$ in parallel, whereas ADVI uses a
+single draw per gradient step and cannot be parallelized in this way. As a
+consequence, DADVI will have a favorable runtime relative to ADVI for the same
+number of model evaluations.
+
+We included NUTS runtime results as a baseline.  We do not include model
+evaluations for NUTS, since standard NUTS packages do not typically report the
+number of model evaluations used for leapfrog steps that are not saved as part
+of the MCMC output.
+
+The results for ARM and non-ARM models are shown respectively in
+\cref{fig:runtimes_arm_graph,fig:runtimes_nonarm_graph}.  Both DADVI and LRVB
+are faster than all competing methods in terms of both runtime and model
+evaluations on most models, with the exception of a small number of ARM models
+and the Occupancy model. These computational benefits are favorable for DADVI
+and LRVB given the results of \cref{sec:experiments_posterior_accuracy} below
+showing that the posterior approximations provided by DADVI and LRVB are similar
+to or better than the posterior approximations from the other methods.

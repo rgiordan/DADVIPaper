@@ -1,0 +1,181 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Do not edit the TeX file your work
+% will be overwritten.  Edit the RnW
+% file instead.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<<setup, include=FALSE, cache=FALSE>>=
+knitr_debug <- FALSE # Set to true to see error output
+
+rerun_all <- TRUE
+
+# Set to true to cache knitr output for this analysis.
+knitr_cache <- TRUE && (!rerun_all)
+
+source("figures_knitr/initialize.R", echo=FALSE)
+source("figures_knitr/common_lib.R", echo=FALSE)
+@
+
+<<load_data>>=
+source("figures_knitr/load_data.R")
+@
+
+<<define_macros, results="asis">>=
+source("figures_knitr/define_macros.R")
+@
+
+%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%
+% Figures and tables
+
+
+
+\newcommand{\TracesARM}{
+<<traces_arm_graph_cap>>=
+figcap <- paste0(
+    "Optimization traces for the ARM models.  ",
+    "Black dots show the termination point of each method. ",
+    "Dots above the horizontal black line mean that DADVI found a better ELBO. ",
+    "Dots to the right of the vertical black line mean that DADVI terminated sooner ",
+    "in terms of model evaluations."
+)
+SetImageSize()
+@
+<<traces_arm_graph, cache=knitr_cache, fig.show='hold', fig.cap=figcap>>=
+source("figures_knitr/traces_arm.R", echo=knitr_debug, print.eval=TRUE)
+@
+}
+
+
+\newcommand{\TracesNonARM}{
+<<traces_nonarm_graph_cap>>=
+figcap <- paste0(
+    "Traces for non-ARM models.  ",
+    "Black dots show the termination point of each method. ",
+    "Dots above the horizontal black line mean that DADVI found a better ELBO. ",
+    "Dots to the right of the vertical black line mean that DADVI terminated sooner ",
+    "in terms of model evaluations."
+)
+SetImageSize()
+@
+<<traces_nonarm_graph, cache=knitr_cache, fig.show='hold', fig.cap=figcap>>=
+source("figures_knitr/traces_nonarm.R", echo=knitr_debug, print.eval=TRUE)
+@
+}
+
+
+
+
+\newcommand{\RuntimeARM}{
+<<runtimes_arm_graph_cap>>=
+figcap <- paste0(
+    "Runtimes and model evaluation counts for the ARM models. ",
+    "Results are reported divided by the corresponding value for DADVI ",
+    "or LRVB.  Numbers greater than one (shown by the black line) indicate ",
+    "favorable performance by DADVI or LRVB.  ",
+    "Recall that the reported LRVB numbers include the cost of the DADVI ",
+    "optimization as well as the LR covariances.  ",
+    "Most of the ARM models are relatively low-dimensional, so the ",
+    "LR covariances added little to the computation."
+)
+SetImageSize()
+@
+<<runtimes_arm_graph, cache=knitr_cache, fig.show='hold', fig.cap=figcap>>=
+source("figures_knitr/runtimes_arm.R",
+       echo=knitr_debug, print.eval=TRUE)
+@
+}
+
+
+
+\newcommand{\RuntimeNonARM}{
+<<runtimes_nonarm_graph_cap>>=
+figcap <- paste0(
+    "Runtimes and model evaluation counts for the non-ARM models. ",
+    "Results are reported divided by the corresponding value for DADVI ",
+    "or LRVB.  Numbers greater than one (shown by the black line) indicate ",
+    "favorable performance by DADVI or LRVB. ",
+    "Recall that the reported LRVB numbers include the cost of the DADVI ",
+    "optimization as well as the LR covariances. ",
+    "Missing model and method combinations are marked with an X."
+)
+SetImageSize()
+@
+<<runtimes_nonarm_graph, cache=knitr_cache, fig.show='hold', fig.cap=figcap>>=
+source("figures_knitr/runtimes_nonarm.R",
+       echo=knitr_debug, print.eval=TRUE)
+@
+}
+
+
+
+
+<<posterior_common_caption>>=
+# Make a function to ensure I don't overwrite it
+GetPostComparisonText <- function() {
+  paste0(
+    "Each point is a single named parameter in a single model. ",
+    "Points above the diagonal line indicate better DADVI or ",
+    "LRVB performance. ")
+}
+@
+
+\newcommand{\PosteriorAccuracyARM}{
+<<posterior_arm_graph_cap>>=
+figcap <- paste0(
+    "Posterior accuracy measures for the ARM models. ",
+    GetPostComparisonText(), " ",
+    "Level curves of a 2D density estimator are shown to help visualize ",
+    "overplotting.")
+SetImageSize()
+@
+<<posterior_arm_graph, cache=knitr_cache, fig.show='hold', fig.cap=figcap>>=
+source("figures_knitr/posterior_comparison_arm.R",
+       echo=knitr_debug, print.eval=TRUE)
+@
+}
+
+
+\newcommand{\PosteriorAccuracyNonARM}{
+<<posterior_nonarm_graph_cap>>=
+figcap <- paste0(
+    "Posterior accuracy measures for the non-ARM models. ",
+    GetPostComparisonText())
+SetImageSize()
+@
+<<posterior_nonarm_graph, cache=knitr_cache, fig.show='hold', fig.cap=figcap>>=
+source("figures_knitr/posterior_comparison_nonarm.R",
+       echo=knitr_debug, print.eval=TRUE)
+@
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\newcommand{\CoverageHistogram}{
+<<coverage_cap>>=
+figcap <- paste0(
+    "Density estimates of $\\Phi(\\freqerr)$ for difference models. ",
+    "All the ARM models are grouped together for ease of visualization.  ",
+    "Each panel shows a binned estimate of the density of $\\Phi(\\freqerr)$ ",
+    "for a particular model and number of draws $\\znum$. ",
+    "Values close to one (a uniform density) indicate good frequentist ",
+    "performance.  ",
+    "CG failed for the Occupancy and POTUS models with only ",
+    "8 draws, possibly indicating poor optimization performance with so ",
+    "few samples.")
+#SetImageSize(aspect_ratio=2/6)
+SetImageSize()
+@
+<<coverage, cache=FALSE, fig.show='hold', fig.cap=figcap>>=
+source(file.path(paper_directory,
+                 "figures_knitr/coverage_histogram.R"),
+       echo=knitr_debug, print.eval=TRUE)
+@
+}

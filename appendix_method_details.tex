@@ -1,0 +1,50 @@
+
+As described in \cref{sec:lr_mc_computation}, in high-dimensional problems it is
+useful to use the conjugate gradient (CG) algorithm to compute both LR
+covariances and frequentist standard errors.  The CG algorithm uses products of
+the form $\h v$ to approximately solve $\h^{-1}v$, and can be made more
+efficient with a preconditioning matrix $M$ with $M \approx \h^{-1}$
+\citep[Chapter 5]{wright:1999:optimization}.
+
+The DADVI approximation itself provides an approximation to the upper left
+quadrant of $\h^{-1}$, which can be used as a preconditioner. By the LR
+covariance formula \cref{eq:lr_def},
+%
+\begin{align*}
+%
+\cov{\post(\theta)}{\theta} \approx
+\lrcov{\q(\theta \vert \etahat)}{\theta} =
+\begin{pmatrix}
+\ident & \zerod[\thetadim \times \thetadim]
+\end{pmatrix}
+\h^{-1}
+\begin{pmatrix}
+\ident \\ \zerod[\thetadim \times \thetadim],
+\end{pmatrix},
+%
+\end{align*}
+%
+which is just the upper-left quadrant of $\h^{-1}$.  Prior
+to computing the LR covariances, the best available approximation
+of $\cov{\post(\theta)}{\theta}$ --- and, in turn, the upper-left quadrant
+of $\h^{-1}$ --- is the mean-field covariance estimate
+%
+$\cov{\q(\theta \vert \etahat)}{\theta} = \diag{\exp(\etaxihat[1]), \ldots, \exp(\etaxihat[\thetadim])}$.
+%
+Therefore, whenever using CG on a DADVI optimum, we pre-condition
+with the matrix
+%
+\begin{align*}
+%
+\begin{pmatrix}
+\cov{\q(\theta \vert \etahat)}{\theta} &
+    \zerod[\thetadim \times \thetadim] \\
+\zerod[\thetadim \times \thetadim] &
+    \ident
+\end{pmatrix}.
+%
+\end{align*}
+%
+Using the preceding preconditioner is formally similar to re-parameterizing the
+mean parameters into their natural parameters, as when taking a natural gradient
+in stochastic optimization \citep{hoffman:2013:stochasticvi}.

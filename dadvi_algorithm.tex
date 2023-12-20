@@ -1,0 +1,64 @@
+%
+\begin{minipage}{1.0\linewidth}
+    \begin{minipage}[t]{0.49\linewidth}
+        %
+        \begin{algorithm}[H]
+        \caption{\\ADVI (Existing method)}\label{alg:sadvi}
+        \begin{algorithmic}
+        \Procedure{ADVI}{}
+            \State $t \gets 0$
+            \State Fix $\znum$ (typically $\znum = 1$)
+            \While{Not converged}
+                \State $t \gets t + 1$
+                \State Draw $\Z$
+                \State $\Delta \gets \grad{\eta}{\klobj{\eta_{t-1} | \Z}}$
+                \State $\alpha_t \gets \textrm{SetStepSize(All past states)}$
+                \State $\eta_t \gets \eta_{t-1} - \alpha_t \Delta$
+                \State $\textrm{AssessConvergence(All past states)}$
+            \EndWhile
+            \State $\tilde{\eta} \gets \eta_t$ or
+                $\tilde{\eta} \gets \frac{1}{M} \sum_{t'=t- M + 1}^t \eta_{t'}$
+            \State \Return $\q(\theta \vert \tilde{\eta})$
+        \EndProcedure
+
+        \Postprocessing \hspace{1em}(If possible)
+            \State Assess MC error using $\eta_1, \ldots, \eta_t$
+            \If{MC Error is too high}
+                \State Re-run with smaller / more steps
+            \EndIf
+        \EndPostprocessing
+        \end{algorithmic}
+        \end{algorithm}
+        %
+    \end{minipage}
+    \begin{minipage}[t]{0.49\linewidth}
+        %
+        \begin{algorithm}[H]
+        \caption{\\DADVI: Deterministic ADVI (Our proposal)}\label{alg:dadvi}
+        \begin{algorithmic}
+        \Procedure{DADVI}{}
+            \State $t \gets 0$
+            \State Fix $\znum$ (our default is $\znum = 30$)
+            \State Draw $\Z$
+            \While{Not converged}
+                \State $t \gets t + 1$
+                \State
+    $\Delta \gets \textrm{GetStep}(\klobj{\cdot | \Z}, \eta_{t-1})$
+                \State $\eta_t \gets \eta_{t-1} + \Delta$
+                \State $\textrm{AssessConvergence}(\klobj{\cdot | \Z}, \eta_t)$
+            \EndWhile
+            \State $\etaopt \gets \eta_t$
+            \State \Return $\q(\theta \vert \etaopt)$
+        \EndProcedure
+        \Postprocessing
+            \State Compute LR covariances (\cref{sec:linear_response})
+            \State Assess MC error (\cref{sec:mc_error_estimation})
+            \If{MC Error is too high}
+                \State Re-run with more samples in $\Z$
+            \EndIf
+        \EndPostprocessing
+        \end{algorithmic}
+        \end{algorithm}
+        %
+    \end{minipage}
+\end{minipage}

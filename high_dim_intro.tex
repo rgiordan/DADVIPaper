@@ -1,0 +1,21 @@
+As discussed in \cref{sec:intro}, classical analysis in the optimization
+literature argues that, in the worst case, SAA is expected to require more
+computation than SG for a given approximation accuracy.  The reason is that the
+total number of samples required for a given accuracy scales linearly with
+dimension, for both SG and SAA \citep[][Chapter
+5]{nemirovski:2009:sgdvsfixed,shapiro:2021:lectures}. Since SAA requires more
+computation per sample than SG, one would correspondingly expect SAA to require
+more computation than SG for the same accuracy in high dimensional problems.
+
+In this section we discuss why the aforementioned classical analysis of
+dimension dependence does not necessarily apply to the particular structure of
+the mean-field ADVI problem and some of its typical applications.  We argue
+that, for problems that are approximately normal, or problems that are high
+dimensional due only to a having a large number of low-dimensional ``local''
+parameters, DADVI can be effective with a relatively small number of samples
+which, in particular, need not grow linearly as the dimension of the problem
+grows.  In contrast, we show that SAA may be inappropriate for more expressive
+BBVI approximations, such as full-rank ADVI. A key assumption of our analysis is
+that the user is interested in a relatively small number of scalar-valued
+quantities of interest, even though these quantities of interest may depend in
+some sense on the whole variational distribution.

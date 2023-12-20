@@ -1,0 +1,154 @@
+We evaluate DADVI and ADVI on the following models and datasets.
+%
+\begin{itemize}
+%
+    \item ARM: $\ARMNumModels$ models and datasets taken from a
+    hierarchical-modeling textbook \citep{gelman:2006:arm}.  The datasets are
+    relatively small and the models consist of textbook linear and generalized
+    linear models, with and without random effects.
+    %
+    \item Microcredit: A hierarchical model from development economics
+    \citep{meager:2019:microcredit} that performs shrinkage on seven
+    randomized controlled trials. The model accounts for heavy tails, asymmetric
+    effects, and zero-inflated observations.
+    %
+    \item Occupancy: A multi-species occupancy model from ecology
+    \citep{ingram:2022:occupancy,kery:2009:speciesrichness}. In occupancy
+    models, the question of interest is whether a particular species is present
+    at (i.e.\ occupying) a particular site. The data consist of whether the
+    species was observed at repeated visits to the site. At any given visit, the
+    species may be present but not observed. Occupancy models estimate both (1)
+    the suitability of a site as a function of environmental covariates such as
+    temperature or rainfall and (2) the probability of observing the species
+    given that it is present (the observation process). The resulting likelihood
+    makes it a non-standard regression model and thus a good candidate for a
+    black-box inference method. Here we use a multi-species occupancy model that
+    places a hierarchical prior on the coefficients of the observation process.
+    Our dataset comprises 1387 sites, 43 environmental covariates at each site,
+    32 different species, and 2000 visits; this dataset represents a subset of
+    the eBird dataset used by \cite{ingram:2022:occupancy}.\footnote{We used a
+    subset so that our ground-truth MCMC method would complete in a reasonable
+    amount of time.}
+    %
+    \item Tennis: A Bradley-Terry model with random effects for ranking tennis
+    players. In this model, each tennis player has a rating, assumed
+    fixed throughout their career. The probability of a given player beating
+    another is determined by the inverse logit of their rating difference.
+    The ratings are modeled as random effects, and the data comprises all
+    men's professional tennis matches on the ATP tour since 1969. Overall,
+    this is a large dataset of 164,936 matches played between 5,013 different players,
+    each of whom has their own random effect, making this a high-dimensional mixed model.
+    %
+    \item POTUS: A time series polling model for the US presidential election
+    \citep{heidemanns:2020:presidential}.  This model is both complex and
+    high-dimensional. It models logit polling probabilities with a reverse
+    autoregressive time series and random effects for various polling
+    conditions.
+%
+\end{itemize}
+%
+Throughout this section, by a ``model'' we will mean a model with its
+corresponding dataset.
+
+\begin{table}[h!]
+\begin{tabular}{|c|c|c|c|}
+\hline\hline
+Model Name  &   $\thetadim$     & NUTS runtime \\
+\hline\hline
+ARM ($\ARMNumModels$ models) &
+$\ARMMinParamDim$ to $\ARMMaxParamDim$ (median $\ARMMedParamDim$)&
+$\ARMMinNUTSSeconds$ seconds to $\ARMMaxNUTSMinutes$
+    minutes (median $\ARMMedNUTSSeconds$ seconds) \\
+%    A range of linear models, GLMs, and GLMMs \\
+\hline
+Microcredit & $\MCParamDim$ & $\MCNUTSMinutes$ minutes\\
+%    Hierarchical model with heavy tails and zero inflation \\
+\hline
+Occupancy & $\OccParamDim$ & $\OccNUTSMinutes$ minutes\\
+%    Binary regression with highly crossed random effects \\
+\hline
+Tennis & $\TennisParamDim$ & $\TennisNUTSMinutes$ minutes\\
+%    Binary regression with highly crossed random effects \\
+\hline
+POTUS & $\PotusParamDim$ & $\PotusNUTSMinutes$ minutes\\
+%Autoregressive time series with random effects \\
+\hline\hline
+\end{tabular}
+\caption{Model summaries.}
+\label{tab:model_desc}
+\end{table}
+
+These models differ greatly in their complexity, as can be seen in
+\cref{tab:model_desc}. The $\ARMNumModels$ ARM models from
+\cite{gelman:2006:arm} are generally simple,\footnote{Indeed, many of the ARM
+models can be fit quickly enough with MCMC that BBVI is arguably not necessary.
+We include all the ARM models in our results to show that DADVI works well in
+both simple and complex cases.} ranging from fixed effects models with a handful
+of parameters to generalized linear mixed models with a few hundred parameters.
+The other four models are more complex, with total parameter dimension
+$\thetadim$ ranging from $\MCParamDim$ for the Microcredit model to
+$\PotusParamDim$ for the POTUS model. We restricted attention to posteriors that
+could be tractably sampled from with the NUTS MCMC algorithm
+\citep{hoffman:2014:nuts} as implemented in PyMC \citep{salvatier:2016:pymc3} in
+order to have access to ``ground truth'' posterior means and variances. However,
+outside the relatively simple ARM models, NUTS samplers were time-consuming,
+which motivates the use of faster variational approximations.
+
+We fit each model using the following methods, including three different
+versions of ADVI.
+%
+\begin{itemize}
+%
+\item NUTS: The ``no-U-turn'' MCMC sampler in PyMC
+\citep{salvatier:2016:pymc3}. %We treated NUTS as a ``ground
+%truth'' against which the accuracy of the variational methods were measured.
+%
+\item DADVI:  Except where otherwise indicated, we report results with
+$\znum=\DADVINumDraws$ draws for DADVI for each model. We optimized using an
+off-the-shelf second-order Newton trust region method (\texttt{trust-ncg} in
+\texttt{scipy.optimize.minimize}).  Our implementation of DADVI is available as a
+Python package at \url{https://github.com/martiningram/dadvi}.
+%
+\item LRVB: Using the optimum found by DADVI, we computed linear response
+covariance estimates.  In the high-dimensional models Occupancy, Tennis, and
+POTUS, we selected a small number of quantities of interest and used the
+conjugate gradient (CG) algorithm to compute the LR covariances and frequentist
+standard errors.  For Occupancy, the quantities of interest were predictions of
+organism presence at $\OccNumCGParams$ sites; for Tennis the quantities of
+interest were win predictions of $\TennisNumCGParams$ randomly chosen matchups;
+and, for POTUS, the quantity of interest was the national vote share received by
+the democratic candidate on election day.  When using the CG algorithm, we
+preconditioned using the estimated variational covariance as described in
+\cref{app:preconditioning}. When reporting metrics for the computational cost of
+computing LRVB, we always report the total cost of the posterior
+approximation --- i.e., the cost of DADVI optimization plus the additional cost of
+computing the LR covariances.
+%
+%
+\item Mean field ADVI (ADVI): We used the PyMC implementation of
+ADVI, together with its default termination criterion. Every 100 iterations,
+this termination criterion compares the current parameter vector with the one
+100 iterations ago. It then computes the relative difference for each parameter
+and flags convergence if it falls below $10^{-3}$. We ran ADVI for up to 100,000
+iterations if convergence was not flagged before then.
+%
+\item RAABBVI (ADVI): RAABVI represents a state-of-the art stochastic
+mean field ADVI method employing principled step size selection and convergence
+assessment \citep{welandawe:2022:robustbbvi}.  To run RAABBVI, we used the
+public package
+\texttt{viabel},\footnote{\url{https://github.com/jhuggins/viabel}} provided
+by \citet{welandawe:2022:robustbbvi}. By default, \texttt{viabel} supports the
+packages \texttt{autograd} and \texttt{Stan}. To be able to run RAABBVI with
+PyMC, we provide it with gradients of the objective function computed with
+PyMC's \texttt{JAX} backend, which we use also for DADVI.
+%
+\item Full-rank ADVI (ADVI): When possible, we used the PyMC
+implementation of full-rank ADVI, together with the default termination
+criterion for ADVI described above.  Full-rank was computationally prohibitive
+for all but the ARM and Microcredit models.
+%
+\end{itemize}
+%
+% \item DADVI-M: We additionally evaluated the cost and accuracy of using
+% frequentist errors to dynamically determine how many draws to use for DADVI.
+%
