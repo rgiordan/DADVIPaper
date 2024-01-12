@@ -98,7 +98,10 @@ PP_DATA := $(exp_data) $(cov_data) $(post_data) $(runtime_data) $(trace_data)
 .PHONY: all
 all: main.pdf
 
-main.pdf: figures_knitr.tex
+
+TEX_FILES := $(wildcard *.tex)
+
+main.pdf: figures_knitr.tex $(TEX_FILES)
 	pdflatex main.tex
 	pdflatex main.tex
 	bibtex main

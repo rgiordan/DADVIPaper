@@ -9,7 +9,7 @@ In forming the full-rank optimization problem, ADVI parameterizes $\q(\theta |
 \eta)$ using a mean $\etamu$ and a $\thetadim \times \thetadim$ matrix $\etar$
 in place of $\etasigma$.  Formally, the full-rank approximation taking
 $\theta(\eta, \z) = \etamu + \etar \z$ in place of the mean-field
-reparameterization given in \cref{eq:reparameterization_theta}. Letting
+reparameterization is given in \cref{eq:reparameterization_theta}. Letting
 $|\cdot|$ denote the matrix determinant, the KL divergence becomes
 %
 \begin{align}\label{eq:reparameterization_fr_kl}
@@ -20,7 +20,7 @@ $|\cdot|$ denote the matrix determinant, the KL divergence becomes
 \end{align}
 %
 The preceding display can be compared with the corresponding mean-field
-objective \cref{eq:reparameterization_kl}.
+objective in \cref{eq:reparameterization_kl}.
 %
 For the present section, we will
 write $\klobj{\eta | \Z} = \klobj{(\mu, \etar) | \Z}$.  Under this
