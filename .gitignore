@@ -301,3 +301,8 @@ TSWLatexianTemp*
 #*Notes.bib
 
 __pycache__/**
+
+
+# The makefile puts a zippable version of the paper in the archive directory.
+# Don't check it in.
+archive/**

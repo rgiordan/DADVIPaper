@@ -141,5 +141,18 @@ knitr_clean:
 	rm -f figure/*
 	rm -f cache/*
 
+.PHONY: archive
+archive:
+	ls archive || mkdir archive
+	cp *.tex archive/
+	cp -R figure archive/
+	cp references.bib archive/
+	cp jmlr2e.sty archive/
+
+.PHONY: archive_clean
+archive:
+	rm -Rf archive/*
+
+
 .PHONY: clean
 clean: latex_clean knitr_clean
