@@ -150,7 +150,7 @@ archive:
 	cp jmlr2e.sty archive/
 
 .PHONY: archive_clean
-archive:
+archive_clean:
 	rm -Rf archive/*
 
 
