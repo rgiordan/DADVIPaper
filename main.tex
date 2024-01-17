@@ -1,17 +1,33 @@
 \documentclass[twoside,11pt]{article}
 
-% You need {ntheorem before jmlr2e for cref to work with remarks
-% https://stackoverflow.com/questions/6499504/cleveref-fails-for-theorem-environments-sharing-the-same-counter
-\usepackage{ntheorem} 
-
-\usepackage{jmlr2e}
 
 % Toggle JMLR formatting on and off
 \usepackage{etoolbox}
 \newbool{arxiv}
 
-\boolfalse{arxiv}
-%\booltrue{arxiv} % uncomment for arxiv
+%\boolfalse{arxiv}
+\booltrue{arxiv} % uncomment for arxiv
+
+\notbool{arxiv}{
+    % You need {ntheorem before jmlr2e for cref to work with remarks
+    % https://stackoverflow.com/questions/6499504/cleveref-fails-for-theorem-environments-sharing-the-same-counter
+    \usepackage{ntheorem} 
+    \usepackage{jmlr2e}
+} {
+    \usepackage{amsthm}
+    \usepackage{url}
+    \usepackage[authoryear]{natbib}
+    \usepackage{amsfonts} 
+    \usepackage{amssymb} 
+    \newtheorem{theorem}{Theorem}
+    \newtheorem{proposition}[theorem]{Proposition}
+    \newtheorem{remark}{Remark}
+    \newtheorem{example}{Example}
+    \bibliographystyle{abbrvnat}
+
+    \usepackage{geometry}
+    \geometry{margin=1.2in}
+}
 
 
 \usepackage{amsmath}
@@ -57,7 +73,7 @@
 
     \editor{Matthew Hoffman}
 } {
-    \editor{}
+    %\editor{NA}
 }
 
 
@@ -66,10 +82,12 @@
 \input{figures_knitr}   % Defines macros to place knitr-generated content
 
 
-% Running title must be < 50 characters
-% https://www.jmlr.org/author-info.html#Submission
-\ShortHeadings{BBVI with a Deterministic Objective}{Giordano, Ingram and Broderick}
-\firstpageno{1}
+\notbool{arxiv}{
+    % Running title must be < 50 characters
+    % https://www.jmlr.org/author-info.html#Submission
+    \ShortHeadings{BBVI with a Deterministic Objective}{Giordano, Ingram and Broderick}
+    \firstpageno{1}
+}
 
 \begin{document}
 
@@ -98,21 +116,28 @@
 
 \title{Black Box Variational Inference with a Deterministic Objective: Faster, More Accurate, and Even More Black Box}
 
-\author{\name Ryan Giordano$^*$ \email rgiordano@berkeley.edu \\
-       \addr Department of Statistics \\ 
-       University of California \\
-       Berkeley, CA, USA
-       \AND
-       \name Martin Ingram$^*$ \email martin.ingram@gmail.com  \\
-       \addr Department of Biosciences\\
-       University of Melbourne\\
-       Parkville, VIC 3010, Australia
-       \AND
-       \name Tamara Broderick \email tbroderick@mit.edu \\
-       \addr Department of Electrical Engineering and Computer
-       Science \\ Massachusetts Institute of Technology \\
-       Cambridge, MA, USA\\
+\notbool{arxiv}{
+    \author{\name Ryan Giordano$^*$ \email rgiordano@berkeley.edu \\
+    \addr Department of Statistics \\ 
+    University of California \\
+    Berkeley, CA, USA
+    \AND
+    \name Martin Ingram$^*$ \email martin.ingram@gmail.com  \\
+    \addr Department of Biosciences\\
+    University of Melbourne\\
+    Parkville, VIC 3010, Australia
+    \AND
+    \name Tamara Broderick \email tbroderick@mit.edu \\
+    \addr Department of Electrical Engineering and Computer
+    Science \\ Massachusetts Institute of Technology \\
+    Cambridge, MA, USA\\
+  }
+}{
+    \author{Ryan Giordano,$^*$
+       Martin Ingram,$^*$
+       Tamara Broderick
      }
+}
 
 \maketitle
 
@@ -126,14 +151,16 @@
     \input{abstract}
 \end{abstract}
 
-\begin{keywords}
-    Black box variational inference,
-    Mean field approximation,
-    Automatic differentiation variational inference,
-    Linear response covariances,
-    Sample average approximation,
-    Stochastic gradient
-\end{keywords}
+\notbool{arxiv}{
+    \begin{keywords}
+        Black box variational inference,
+        Mean field approximation,
+        Automatic differentiation variational inference,
+        Linear response covariances,
+        Sample average approximation,
+        Stochastic gradient
+    \end{keywords}    
+}
 
 \section{Introduction}\label{sec:intro}
 \input{introduction}
