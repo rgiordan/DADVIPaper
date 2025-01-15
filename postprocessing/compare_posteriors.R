@@ -2,8 +2,11 @@ library(gridExtra)
 library(tidyverse)
 library(shiny)
 
-base_folder <- "/home/rgiordan/Documents/git_repos/DADVI/dadvi-experiments"
-paper_base_folder <- "/home/rgiordan/Documents/git_repos/DADVI/fd-advi-paper/jmlr"
+args <- commandArgs(trailingOnly = TRUE)
+
+base_folder <- args[1]
+paper_base_folder <- args[2]
+
 setwd(file.path(paper_base_folder, "postprocessing"))
 source(file.path(paper_base_folder, "postprocessing/load_tidy_lib.R"))
 

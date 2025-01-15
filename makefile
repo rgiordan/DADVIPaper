@@ -6,17 +6,17 @@
 # Set these variables to the paths of the paper repo and experiments repos.
 
 # The (present) repo for the actual paper.
-PAPER_REPO := /home/rgiordan/Documents/git_repos/DADVIPaper
+PAPER_REPO := /media/martin/external_drive/DADVIPaper/
 
 # The repo for running the actual experiments.  They should
 # write their output to the $(BLADE_DIR) folder.
-EXP_REPO := /home/rgiordan/Documents/git_repos/DADVI/dadvi-experiments
+EXP_REPO := /media/martin/external_drive/dadvi-experiments/
 
 
 ######################################################
 # Subdirectory variables for concise targets.
 
-BLADE_DIR := $(EXP_REPO)/comparison/blade_runs
+BLADE_DIR := $(EXP_REPO)/comparison/experiment_runs/november_2024/models
 ANALYSIS_DIR := $(EXP_REPO)/comparison/analysis
 
 ######################################################
@@ -53,7 +53,7 @@ exp_data: $(exp_data)
 
 
 # Process Python reruns
-RERUN_DIR := $(ANALYSIS_DIR)/coverage_warm_starts_rerun
+RERUN_DIR := $(EXP_REPO)/comparison/experiment_runs/november_2024/coverage/
 COVERAGE_CMD := 'In '$(ANALYSIS_DIR)', run `make FrequentistCoverageLoadAndTidyAndSave`'
 $(RERUN_DIR)/coverage_tidy.csv:
 	echo $(COVERAGE_CMD)
@@ -72,7 +72,7 @@ cov_data: $(cov_data)
 # Further processing of the R output
 post_data := $(PAPERDATA_DIR)/posteriors.Rdata
 $(post_data): $(exp_data)
-	Rscript $(PP_DIR)/compare_posteriors.R
+	Rscript $(PP_DIR)/compare_posteriors.R $(EXP_REPO) $(PAPER_REPO)
 .PHONY: post_data
 post_data: $(post_data)
 
