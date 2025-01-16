@@ -1,13 +1,15 @@
 library(gridExtra)
 library(tidyverse)
 
-base_folder <- "/home/rgiordan/Documents/git_repos/DADVI/dadvi-experiments"
-paper_base_folder <- "/home/rgiordan/Documents/git_repos/DADVI/fd-advi-paper/jmlr"
+args <- commandArgs(trailingOnly = TRUE)
+base_folder <- args[1]
+paper_base_folder <- args[2]
+
 setwd(file.path(paper_base_folder, "postprocessing"))
 source(file.path(paper_base_folder, "postprocessing/load_tidy_lib.R"))
 
 
-input_folder <- file.path(base_folder, "comparison/analysis/coverage_warm_starts_rerun/") 
+input_folder <- file.path(base_folder, "comparison/experiment_runs/november_2024/coverage") 
 output_folder <- file.path(paper_base_folder, "experiments_data") 
 
 models_to_remove <- GetModelsToRemove()
@@ -16,11 +18,13 @@ non_arm_models <- GetNonARMModels()
 raw_coverage_df <-
     read.csv(file.path(input_folder, "coverage_tidy.csv"), as.is=TRUE) %>%
     filter(!(model %in% models_to_remove)) %>%
+    filter(!(model %in% c('tennis', 'occu', 'occ_det', 'potus'))) %>%
     mutate(is_arm=IsARM(model)) %>%
     mutate(method="inverse")
 
 raw_coverage_cg_df <-
-    read.csv(file.path(input_folder, "coverage_tidy_cg.csv"), as.is=TRUE) %>%
+    read.csv(file.path(input_folder, "coverage_tidy.csv"), as.is=TRUE) %>%
+    filter(model %in% c('tennis', 'occu', 'occ_det', 'potus')) %>%
     mutate(is_arm=FALSE) %>%
     mutate(model=recode(model, occu="occ_det")) %>%
     mutate(method="CG")
