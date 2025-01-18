@@ -7,16 +7,15 @@
 
 # The (present) repo for the actual paper.
 PAPER_REPO := /media/martin/external_drive/DADVIPaper/
-
-# The repo for running the actual experiments.  They should
-# write their output to the $(BLADE_DIR) folder.
 EXP_REPO := /media/martin/external_drive/dadvi-experiments/
 
 
 ######################################################
 # Subdirectory variables for concise targets.
 
-BLADE_DIR := $(EXP_REPO)/comparison/experiment_runs/november_2024/models
+POSTERIORS_DIR := $(EXP_REPO)/comparison/experiment_runs/november_2024/models
+COVERAGE_DIR := $(EXP_REPO)/comparison/experiment_runs/november_2024/coverage
+
 ANALYSIS_DIR := $(EXP_REPO)/comparison/analysis
 
 ######################################################
@@ -24,15 +23,15 @@ ANALYSIS_DIR := $(EXP_REPO)/comparison/analysis
 # Three stages: Python -> R -> Knitr
 
 POST_TIDY_CMD := 'In '$(ANALYSIS_DIR)', run `make PosteriorsLoadAndTidyAndSave`'
-$(BLADE_DIR)/posteriors_tidy.csv: 
+$(POSTERIORS_DIR)/posteriors_tidy.csv: 
 	echo $(POST_TIDY_CMD)
-$(BLADE_DIR)/metadata_tidy.csv:
+$(POSTERIORS_DIR)/metadata_tidy.csv:
 	echo $(POST_TIDY_CMD)
-$(BLADE_DIR)/trace_tidy.csv:
+$(POSTERIORS_DIR)/trace_tidy.csv:
 		echo $(POST_TIDY_CMD)
-$(BLADE_DIR)/params_tidy.csv:
+$(POSTERIORS_DIR)/params_tidy.csv:
 	echo $(POST_TIDY_CMD)
-$(BLADE_DIR)/mcmc_diagnostics_tidy.csv:
+$(POSTERIORS_DIR)/mcmc_diagnostics_tidy.csv:
 	echo $(POST_TIDY_CMD)
 
 # Experimental data in the format needed for the paper.
@@ -42,29 +41,25 @@ PP_DIR := $(PAPER_REPO)/postprocessing
 # Process Python base runs
 exp_data := $(PAPERDATA_DIR)/cleaned_experimental_results.Rdata
 $(exp_data): \
-		$(BLADE_DIR)/posteriors_tidy.csv \
-		$(BLADE_DIR)/metadata_tidy.csv \
-		$(BLADE_DIR)/trace_tidy.csv \
-		$(BLADE_DIR)/params_tidy.csv \
-		$(BLADE_DIR)/mcmc_diagnostics_tidy.csv 
-	Rscript $(PP_DIR)/load_tidy_results.R
+		$(POSTERIORS_DIR)/posteriors_tidy.csv \
+		$(POSTERIORS_DIR)/metadata_tidy.csv \
+		$(POSTERIORS_DIR)/trace_tidy.csv \
+		$(POSTERIORS_DIR)/params_tidy.csv \
+		$(POSTERIORS_DIR)/mcmc_diagnostics_tidy.csv 
+	Rscript $(PP_DIR)/load_tidy_results.R $(POSTERIORS_DIR) $(PAPER_REPO)
 .PHONY: exp_data
 exp_data: $(exp_data)
 
 
 # Process Python reruns
-RERUN_DIR := $(EXP_REPO)/comparison/experiment_runs/november_2024/coverage/
 COVERAGE_CMD := 'In '$(ANALYSIS_DIR)', run `make FrequentistCoverageLoadAndTidyAndSave`'
-$(RERUN_DIR)/coverage_tidy.csv:
-	echo $(COVERAGE_CMD)
-$(RERUN_DIR)/coverage_tidy_cg.csv:
+$(COVERAGE_DIR)/coverage_tidy.csv:
 	echo $(COVERAGE_CMD)
 
 cov_data := $(PAPERDATA_DIR)/coverage_summary.Rdata
 $(cov_data): \
-		$(RERUN_DIR)/coverage_tidy.csv \
-		$(RERUN_DIR)/coverage_tidy_cg.csv
-	Rscript $(PP_DIR)/load_tidy_coverage_results.R
+		$(COVERAGE_DIR)/coverage_tidy.csv
+	Rscript $(PP_DIR)/load_tidy_coverage_results.R $(COVERAGE_DIR) $(PAPER_REPO)
 .PHONY: cov_data
 cov_data: $(cov_data)
 
@@ -72,19 +67,19 @@ cov_data: $(cov_data)
 # Further processing of the R output
 post_data := $(PAPERDATA_DIR)/posteriors.Rdata
 $(post_data): $(exp_data)
-	Rscript $(PP_DIR)/compare_posteriors.R $(EXP_REPO) $(PAPER_REPO)
+	Rscript $(PP_DIR)/compare_posteriors.R $(PAPER_REPO)
 .PHONY: post_data
 post_data: $(post_data)
 
 runtime_data := $(PAPERDATA_DIR)/runtime.Rdata
 $(runtime_data): $(exp_data)
-	Rscript $(PP_DIR)/compare_runtime.R
+	Rscript $(PP_DIR)/compare_runtime.R $(PAPER_REPO)
 .PHONY: runtime_data
 runtime_data: $(runtime_data)
 
 trace_data := $(PAPERDATA_DIR)/traces.Rdata
 $(trace_data): $(exp_data)
-	Rscript $(PP_DIR)/compare_traces.R
+	Rscript $(PP_DIR)/compare_traces.R $(PAPER_REPO)
 .PHONY: trace_data
 trace_data: $(trace_data)
 

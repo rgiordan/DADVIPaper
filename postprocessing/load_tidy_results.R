@@ -5,13 +5,13 @@ library(tidyverse)
 library(shiny)
 
 args <- commandArgs(trailingOnly = TRUE)
-base_folder <- args[1]
+
+input_folder <- args[1]
 paper_base_folder <- args[2]
 
 setwd(file.path(paper_base_folder, "postprocessing"))
 source(file.path(paper_base_folder, "postprocessing/load_tidy_lib.R"))
 
-input_folder <- file.path(base_folder, "comparison/experiment_runs/november_2024/models")
 output_folder <- file.path(paper_base_folder, "experiments_data")
 
 models_to_remove <- GetModelsToRemove()

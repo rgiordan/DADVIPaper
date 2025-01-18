@@ -3,8 +3,7 @@ library(tidyverse)
 library(shiny)
 
 args <- commandArgs(trailingOnly = TRUE)
-base_folder <- args[1]
-paper_base_folder <- args[2]
+paper_base_folder <- args[1]
 
 setwd(file.path(paper_base_folder, "postprocessing"))
 source(file.path(paper_base_folder, "postprocessing/load_tidy_lib.R"))
