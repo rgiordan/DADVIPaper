@@ -9,7 +9,8 @@ with a Deterministic Objective: Faster, More Accurate, and Even More Black Box.
 
 To compile, edit the header of the `makefile` to point to this repositry as
 well as the experiments repository (which is currently [martiningram/dadvi-experiments](https://github.com/martiningram/dadvi-experiments)).
-Then run `make all`.
+Then run `make all`. The requirements needed for R to run are listed in `r_requirements.txt`,
+so please install these first.
 
 Note that you should be able to compile the paper using the postprocessed
 experiments data included in this repo.  To re-run the experiments, see
