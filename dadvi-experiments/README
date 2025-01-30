@@ -1,0 +1,58 @@
+# DADVI experiments
+
+This repository contains code to reproduce the results in the paper "Black Box
+Variational Inference with a Deterministic Objective: Faster, More Accurate,
+and Even More Black Box", by Giordano, Ingram and Broderick.
+
+### How to install the dependencies
+
+The first step is to install the DADVI library, which is available here:
+https://github.com/martiningram/dadvi . We recommend doing this using
+the Dockerfile provided to ensure that all of the models and competing
+approaches work as expected.  Specifically, clone
+https://github.com/martiningram/dadvi and follow the directions
+to build the docker instance named `dadvi_paper`.  Then run
+
+```
+docker run -it --mount src=DADVI_EXPERIMENTS_REPO_PATH_HERE,target=/dadvi_experiments,type=bind --platform linux/amd64 dadvi_paper /bin/bash
+```
+
+where you replace `DADVI_EXPERIMENTS_REPO_PATH_HERE` with the path to
+your local clone of the present `martiningram/dadvi-experiments` repository.
+You should find yourself in a docker instance.  Run
+
+```
+cd dadvi_experiments
+conda activate dadvi
+```
+
+and you should be running in a conda instance with dadvi and its dependencies
+successfully installed.
+
+### Reproducing the experimental results
+
+Once DADVI is installed, the experimental results can be reproduced by running
+the scripts in the `comparison` directory. There are two of these scripts:
+
+1. `run_arm_experiments.sh`: This script runs the experiments for the models
+   taken from the applied regression modelling textbook (see the paper). They
+   are relatively quick to run for all methods.
+2. `run_large_model_experiments.sh`: This script runs the experiments for the
+   larger models in the comparison. This will take quite a while, especially
+   because of the coverage experiments, which rerun DADVI 100 times for
+   a different number of draws, so about 400 times per model in total.
+
+The scripts define output directories at the start, which you should set as
+you like.
+
+Once these raw experiments are rerun, you can perform the analysis for the paper
+using the `makefile` in the `analysis` folder. To do that, you should change the
+`EXP_REPO` in that makefile, as well as the `EXP_RESULT_DIR`, `MODEL_RESULT_DIR`
+and `COVERAGE_RESULT_DIR`to wherever you saved the experiments (this should be
+the `TARGET_DIR` in the scripts).
+
+-----------------
+Latest runs
+
+- Coverage: https://drive.google.com/file/d/1eb_43sNcHVkScbfN_NToU35b2tkFeLMB/view?usp=sharing
+- Posteriors: https://drive.google.com/file/d/1TC74Pf8SPhJwI-VDp9eX1iSKc8BINXNK/view?usp=sharing
